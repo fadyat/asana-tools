@@ -17,12 +17,12 @@ logger = create_logger(__name__)
 async def project_custom_fields(
     project_id: str = settings.ASANA_PROJECT_ID,
 ):
-    asana_client = AsyncAsanaClient(
+    logger.info('Started')
+
+    async with AsyncAsanaClient(
         access_token=settings.ASANA_API_KEY,
         asana_api_endpoint=settings.ASANA_API_ENDPOINT,
-    )
-    logger.info('Started')
-    async with asana_client as client:
+    ) as client:
         logger.info('Getting custom fields')
         try:
             result = await client.get_project(
@@ -61,9 +61,9 @@ async def count_likes():
     logger.info('Done!')
 
 
-async def create_tasks(
-    data_file: str = 'test.csv',
-    template_url: str | None = settings.ASANA_TASK_TEMPLATE_URL,
+async def create_mailing_tasks(
+    data_file: str = settings.DATA_CSV_FILE_NAME,
+    template_url: str = settings.ASANA_TASK_TEMPLATE_URL,
 ):
     logger.info('Started')
 
@@ -71,6 +71,11 @@ async def create_tasks(
         access_token=settings.ASANA_API_KEY,
         asana_api_endpoint=settings.ASANA_API_ENDPOINT,
     ) as client:
+        members = (await client.get_project_memberships(
+            project_gid=settings.ASANA_PROJECT_ID,
+            opt_fields=('user.email', 'user.name'),
+        )).get('data') or ()
+
         task_data = await get_task_data(
             template_url=template_url,
             asana_client=client
@@ -85,7 +90,8 @@ async def create_tasks(
             asana_client=client,
             project_gid=settings.ASANA_PROJECT_ID,
             task_name=task_data.get('name'),
-            notes=task_data.get('notes')
+            notes=task_data.get('notes'),
+            members=members,
         )
 
     logger.info('Done!')
@@ -93,4 +99,4 @@ async def create_tasks(
 
 
 if __name__ == '__main__':
-    fire.Fire({'likes': count_likes, 'tasks': create_tasks})
+    fire.Fire({'likes': count_likes, 'mailing': create_mailing_tasks})

@@ -37,6 +37,20 @@ class AsyncAsanaClient:
         return await response.json()
 
     @asana_api_errors
+    async def get_project_memberships(
+        self,
+        project_gid: str,
+        opt_fields: typing.Sequence[str] | None = None,
+    ):
+        response = await self.http_session.get(
+            url=f"{self.api_endpoint}/projects/{project_gid}/project_memberships",
+            headers=self.headers,
+            params=remove_none_values({"data": {"opt_fields": opt_fields}}),
+        )
+
+        return await response.json()
+
+    @asana_api_errors
     async def get_tasks(
         self,
         project_gid: str,

@@ -18,3 +18,4 @@ def get_asana_project_gid_from_url(
 ASANA_PROJECT_ID = get_asana_project_gid_from_url(env.str('ASANA_PROJECT_URL'))
 ASANA_LIKES_FIELD_ID = env.str('ASANA_LIKES_FIELD_ID')
 ASANA_TASK_TEMPLATE_URL = env.str('ASANA_TASK_TEMPLATE_URL')
+DATA_CSV_FILE_NAME = env.str('DATA_CSV_FILE_NAME', default='test.csv')

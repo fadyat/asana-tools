@@ -60,7 +60,15 @@ async def get_task_data(
         logger.exception('Failed to get task data from %s', template_url)
         return {}
 
+    logger.info('Got task data')
     return response.get('data') or {}
+
+
+def get_assignee_name(members, email):
+    for member in members:
+        user = member.get('user') or {}
+        if user.get('email') == email:
+            return user.get('name')
 
 
 async def create_multiple_tasks(
@@ -69,17 +77,21 @@ async def create_multiple_tasks(
     project_gid: str,
     notes: str,
     task_name: str,
+    members: Sequence[dict],
 ):
     permanent_links = []
     for email in emails:
+        name = get_assignee_name(members, email)
         try:
+            # todo: optimize replacement
             result = await asana_client.create_task(
-                name=task_name,
+                name=task_name.replace('{{email}}', name).replace('{{name}}', name),
                 project_gid=project_gid,
-                notes=notes,
+                notes=notes.replace('{{name}}', name).replace('{{email}}', email),
                 assignee=email
             )
-        except (aiohttp.ContentTypeError, aiohttp.ClientError, Exception,) as e:
+        except (aiohttp.ContentTypeError, aiohttp.ClientError, Exception):
+            logger.exception('Failed to create task for %s', email)
             continue
 
         data = result.get('data') or {}
