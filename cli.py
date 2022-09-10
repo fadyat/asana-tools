@@ -5,7 +5,12 @@ from src import settings
 from src.clients.asana import AsyncAsanaClient
 from src.utils.base import create_logger
 from src.utils.projects import get_custom_fields
-from src.utils.tasks import update_tasks_likes_custom_tag_value
+from src.utils.tasks import (
+    update_tasks_likes_custom_tag_value,
+    get_notes
+)
+
+logger = create_logger(__name__)
 
 
 async def project_custom_fields(
@@ -16,7 +21,6 @@ async def project_custom_fields(
     :param project_id:
     :return:
     """
-    logger = create_logger(__name__)
     asana_client = AsyncAsanaClient(
         access_token=settings.ASANA_API_KEY,
         asana_api_endpoint=settings.ASANA_API_ENDPOINT,
@@ -62,5 +66,26 @@ async def count_likes():
     logger.info('Done!')
 
 
+async def create_task(
+    template_url: str | None = None,
+    template_file: str | None = None,
+):
+    logger.info('Started')
+    asana_client = AsyncAsanaClient(
+        access_token=settings.ASANA_API_KEY,
+        asana_api_endpoint=settings.ASANA_API_ENDPOINT,
+    )
+
+    async with asana_client as client:
+        notes = await get_notes(template_file, template_url, client)
+        result = await client.create_task(
+            name='Test task',
+            project_gid=settings.ASANA_PROJECT_ID,
+            notes=notes
+        )
+
+    return (result.get('data') or {}).get('permalink_url')
+
+
 if __name__ == '__main__':
-    fire.Fire({'likes': count_likes})
+    fire.Fire({'likes': count_likes, 'tasks': create_task})

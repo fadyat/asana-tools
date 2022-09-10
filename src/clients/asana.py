@@ -5,6 +5,7 @@ import typing
 import aiohttp
 
 from src import settings
+from src.utils.base import remove_none_values
 
 
 class AsyncAsanaClient:
@@ -68,6 +69,30 @@ class AsyncAsanaClient:
             url=f"{self.api_endpoint}/tasks/{task_gid}",
             headers=self.headers,
             data=json.dumps(body),
+        )
+
+        return await response.json()
+
+    async def create_task(
+        self,
+        name: str,
+        project_gid: str,
+        assignee: str | None = None,
+        notes: str | None = None,
+    ):
+        body = remove_none_values({
+            "data": {
+                "name": name,
+                "assignee": assignee,
+                "projects": [project_gid],
+                "notes": notes,
+            }
+        })
+
+        response = await self.http_session.post(
+            url=f"{self.api_endpoint}/tasks",
+            headers=self.headers,
+            data=body,
         )
 
         return await response.json()

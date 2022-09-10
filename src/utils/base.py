@@ -1,6 +1,12 @@
 import logging
 
 
+def remove_none_values(
+    body: dict,
+) -> dict:
+    return {key: value for key, value in body.get('data').items() if value}
+
+
 class _CustomFormatter(logging.Formatter):
     grey: str = '\x1b[38;20m'
     yellow: str = '\x1b[33;20m'
