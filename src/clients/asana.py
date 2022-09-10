@@ -5,7 +5,8 @@ import typing
 import aiohttp
 
 from src import settings
-from src.utils.base import remove_none_values
+from src.utils.decorators import asana_api_errors
+from src.utils.filters import remove_none_values
 
 
 class AsyncAsanaClient:
@@ -23,6 +24,7 @@ class AsyncAsanaClient:
     def headers(self):
         return {"Authorization": f"Bearer {self.access_token}"}
 
+    @asana_api_errors
     async def get_project(
         self,
         project_gid: str,
@@ -34,6 +36,7 @@ class AsyncAsanaClient:
 
         return await response.json()
 
+    @asana_api_errors
     async def get_tasks(
         self,
         project_gid: str,
@@ -46,6 +49,7 @@ class AsyncAsanaClient:
 
         return await response.json()
 
+    @asana_api_errors
     async def get_task(
         self,
         task_gid: str,
@@ -57,6 +61,7 @@ class AsyncAsanaClient:
 
         return await response.json()
 
+    @asana_api_errors
     async def update_tasks_likes_field(
         self,
         task_gid: str,
@@ -73,6 +78,7 @@ class AsyncAsanaClient:
 
         return await response.json()
 
+    @asana_api_errors
     async def create_task(
         self,
         name: str,

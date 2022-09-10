@@ -3,12 +3,13 @@ import fire
 
 from src import settings
 from src.clients.asana import AsyncAsanaClient
-from src.utils.base import create_logger
-from src.utils.projects import get_custom_fields
-from src.utils.tasks import (
+from src.utils.asana.projects import get_custom_fields
+from src.utils.asana.tasks import (
     update_tasks_likes_custom_tag_value,
-    get_notes
+    create_multiple_tasks, get_task_data
 )
+from src.utils.base.log import create_logger
+from src.utils.io import csv_file_to_dataframe, get_email_column_values
 
 logger = create_logger(__name__)
 
@@ -16,11 +17,6 @@ logger = create_logger(__name__)
 async def project_custom_fields(
     project_id: str = settings.ASANA_PROJECT_ID,
 ):
-    """
-    Method for getting custom field id for likes
-    :param project_id:
-    :return:
-    """
     asana_client = AsyncAsanaClient(
         access_token=settings.ASANA_API_KEY,
         asana_api_endpoint=settings.ASANA_API_ENDPOINT,
@@ -41,13 +37,12 @@ async def project_custom_fields(
 
 
 async def count_likes():
-    logger = create_logger(__name__)
-    asana_client = AsyncAsanaClient(
+    logger.info('Started')
+
+    async with AsyncAsanaClient(
         access_token=settings.ASANA_API_KEY,
         asana_api_endpoint=settings.ASANA_API_ENDPOINT,
-    )
-    logger.info('Started')
-    async with asana_client as client:
+    ) as client:
         logger.info('Getting tasks')
         try:
             result = await client.get_tasks(
@@ -66,26 +61,36 @@ async def count_likes():
     logger.info('Done!')
 
 
-async def create_task(
-    template_url: str | None = None,
-    template_file: str | None = None,
+async def create_tasks(
+    data_file: str = 'test.csv',
+    template_url: str | None = settings.ASANA_TASK_TEMPLATE_URL,
 ):
     logger.info('Started')
-    asana_client = AsyncAsanaClient(
+
+    async with AsyncAsanaClient(
         access_token=settings.ASANA_API_KEY,
         asana_api_endpoint=settings.ASANA_API_ENDPOINT,
-    )
-
-    async with asana_client as client:
-        notes = await get_notes(template_file, template_url, client)
-        result = await client.create_task(
-            name='Test task',
-            project_gid=settings.ASANA_PROJECT_ID,
-            notes=notes
+    ) as client:
+        task_data = await get_task_data(
+            template_url=template_url,
+            asana_client=client
         )
 
-    return (result.get('data') or {}).get('permalink_url')
+        if not task_data:
+            logger.info('Forced termination due to missing task data')
+            return
+
+        permanent_links = await create_multiple_tasks(
+            emails=get_email_column_values(csv_file_to_dataframe(data_file)),
+            asana_client=client,
+            project_gid=settings.ASANA_PROJECT_ID,
+            task_name=task_data.get('name'),
+            notes=task_data.get('notes')
+        )
+
+    logger.info('Done!')
+    return permanent_links
 
 
 if __name__ == '__main__':
-    fire.Fire({'likes': count_likes, 'tasks': create_task})
+    fire.Fire({'likes': count_likes, 'tasks': create_tasks})

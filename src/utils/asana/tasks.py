@@ -1,8 +1,10 @@
+from typing import Sequence
+
 import aiohttp
 
 from src.clients.asana import AsyncAsanaClient
-from src.utils.base import create_logger
-from src.utils.io import get_task_notes_from_file
+from src.utils import filters
+from src.utils.base.log import create_logger
 
 logger = create_logger(__name__)
 
@@ -13,25 +15,6 @@ def get_likes_count_from_task_response(
     data = task_response.get('data') or {}
     likes = data.get('likes') or ()
     return len(likes)
-
-
-def parse_task_gid_from_url(
-    url: str | None,
-) -> str:
-    return list(filter(lambda x: x.isdigit(), url.split('/')))[-1]
-
-
-async def get_task_notes_from_task(
-    asana_client: AsyncAsanaClient,
-    task_gid: str,
-) -> object:
-    try:
-        response = await asana_client.get_task(task_gid)
-    except (aiohttp.ContentTypeError, aiohttp.ClientError, Exception):
-        logger.exception('Failed to get task %s', task_gid)
-        return None
-
-    return (response.get('data') or {}).get('notes')
 
 
 async def update_tasks_likes_custom_tag_value(
@@ -66,21 +49,41 @@ async def update_tasks_likes_custom_tag_value(
             logger.info('Updated task %s', task_gid)
 
 
-async def get_notes(
-    template_file: str | None,
-    template_url: str | None,
+async def get_task_data(
+    template_url: str,
     asana_client: AsyncAsanaClient | None,
-) -> str | None:
-    if notes := get_task_notes_from_file(template_file):
-        logger.info('Notes from file')
-        return notes
+) -> dict:
+    try:
+        task_gid = filters.parse_task_gid_from_url(template_url)
+        response = await asana_client.get_task(task_gid)
+    except (aiohttp.ContentTypeError, aiohttp.ClientError, Exception):
+        logger.exception('Failed to get task data from %s', template_url)
+        return {}
 
-    if not template_url or not (task_gid := parse_task_gid_from_url(template_url)):
-        logger.error('Failed to parse task gid from url')
-        return None
+    return response.get('data') or {}
 
-    if notes := await get_task_notes_from_task(asana_client, task_gid):
-        logger.info('Notes from task')
-        return notes
 
-    return None
+async def create_multiple_tasks(
+    emails: Sequence[str],
+    asana_client: AsyncAsanaClient,
+    project_gid: str,
+    notes: str,
+    task_name: str,
+):
+    permanent_links = []
+    for email in emails:
+        try:
+            result = await asana_client.create_task(
+                name=task_name,
+                project_gid=project_gid,
+                notes=notes,
+                assignee=email
+            )
+        except (aiohttp.ContentTypeError, aiohttp.ClientError, Exception,) as e:
+            continue
+
+        data = result.get('data') or {}
+        logger.info('Created task %s', data.get('gid'))
+        permanent_links.append(data.get('permalink_url'))
+
+    return permanent_links

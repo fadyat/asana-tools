@@ -1,18 +1,14 @@
-import json
+import pandas
 
 
-def get_task_notes_from_file(
-    template_file: str | None,
-) -> str | None:
-    data = file_to_dictionary(template_file)
-    return data.get('notes')
+def csv_file_to_dataframe(
+    file_path: str,
+):
+    return pandas.read_csv(file_path)
 
 
-def file_to_dictionary(
-    file_path: str | None = None,
-) -> dict:
-    if not file_path:
-        return {}
-
-    with open(file_path, 'r') as f:
-        return json.load(f)
+def get_email_column_values(
+    dataframe: pandas.DataFrame,
+    email_column: str = 'email',
+) -> pandas.Series:
+    return dataframe[email_column].to_list()
