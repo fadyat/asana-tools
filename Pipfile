@@ -7,6 +7,7 @@ name = "pypi"
 fire = "==0.4.0"
 envparse = "==0.2.0"
 aiohttp = "==3.8.1"
+pandas = "==1.4.4"
 
 [dev-packages]
 black = "==22.8.0"

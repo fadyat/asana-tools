@@ -1,14 +1,22 @@
 version: '3.3'
 
 services:
-
-  app:
+  app-likes:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: app
+    container_name: asana-scripts-app-likes
     volumes:
       - .:/opt/app
     command: [ 'python', '/opt/app/cli.py', 'likes' ]
     working_dir: '/opt/app'
-    restart: on-failure
+
+  app-mailing:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: asana-scripts-app-mailing
+    volumes:
+      - .:/opt/app
+    command: [ 'python', '/opt/app/cli.py', 'mailing' ]
+    working_dir: '/opt/app'
