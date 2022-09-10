@@ -85,7 +85,7 @@ async def create_mailing_tasks(
             logger.info('Forced termination due to missing task data')
             return
 
-        permanent_links = await create_multiple_tasks(
+        permanent_links_for_users = await create_multiple_tasks(
             emails=get_email_column_values(csv_file_to_dataframe(data_file)),
             asana_client=client,
             project_gid=settings.ASANA_PROJECT_ID,
@@ -95,7 +95,7 @@ async def create_mailing_tasks(
         )
 
     logger.info('Done!')
-    return permanent_links
+    return permanent_links_for_users
 
 
 if __name__ == '__main__':

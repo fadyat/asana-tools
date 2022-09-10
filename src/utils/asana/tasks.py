@@ -79,7 +79,7 @@ async def create_multiple_tasks(
     task_name: str,
     members: Sequence[dict],
 ):
-    permanent_links = []
+    permanent_links_for_users = []
     for email in emails:
         name = get_assignee_name(members, email)
         try:
@@ -96,6 +96,8 @@ async def create_multiple_tasks(
 
         data = result.get('data') or {}
         logger.info('Created task %s', data.get('gid'))
-        permanent_links.append(data.get('permalink_url'))
+        permanent_links_for_users.append(
+            (name, data.get('permalink_url'))
+        )
 
-    return permanent_links
+    return permanent_links_for_users
