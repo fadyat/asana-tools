@@ -1,10 +1,13 @@
 from typing import Sequence
 
 import aiohttp
+import pandas
 
 from src.clients.asana import AsyncAsanaClient
+from src.entities import RenderingContent
 from src.utils import filters
 from src.utils.base.log import create_logger
+from src.utils.render import replace_all_text_templates
 
 logger = create_logger(__name__)
 
@@ -72,7 +75,7 @@ def get_assignee_name(members, email):
 
 
 async def create_multiple_tasks(
-    emails: Sequence[str],
+    dataframe: pandas.DataFrame,
     asana_client: AsyncAsanaClient,
     project_gid: str,
     notes: str,
@@ -80,24 +83,28 @@ async def create_multiple_tasks(
     members: Sequence[dict],
 ):
     permanent_links_for_users = []
-    for email in emails:
-        name = get_assignee_name(members, email)
+    for _, row in dataframe.iterrows():
+        rendering_content = RenderingContent(
+            name=get_assignee_name(members, row.email),
+            email=row.email,
+            equipment=row.equipment,
+        )
+
         try:
-            # todo: optimize replacement
             result = await asana_client.create_task(
-                name=task_name.replace('{{email}}', name).replace('{{name}}', name),
+                name=replace_all_text_templates(task_name, rendering_content),
                 project_gid=project_gid,
-                notes=notes.replace('{{name}}', name).replace('{{email}}', email),
-                assignee=email
+                notes=replace_all_text_templates(notes, rendering_content),
+                assignee=row.email,
             )
         except (aiohttp.ContentTypeError, aiohttp.ClientError, Exception):
-            logger.exception('Failed to create task for %s', email)
+            logger.exception('Failed to create task for %s', row.email)
             continue
 
         data = result.get('data') or {}
         logger.info('Created task %s', data.get('gid'))
         permanent_links_for_users.append(
-            (name, data.get('permalink_url'))
+            (rendering_content.name, data.get('permalink_url'))
         )
 
     return permanent_links_for_users

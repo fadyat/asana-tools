@@ -26,3 +26,8 @@ docker-compose build {{service-name}} && docker-compose up {{service-name}}
     ASANA_TASK_TEMPLATE_URL=
     DATA_CSV_FILE_NAME=
   ```
+  
+  - Поддерживаемые колонки:
+  ```text
+  email, equipment
+  ```
