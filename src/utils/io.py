@@ -1,14 +1,16 @@
 import pandas
 
+from src import settings
+
 
 def csv_file_to_dataframe(
     file_path: str,
+    separator: str = settings.CSV_SEPERATOR,
 ):
-    return pandas.read_csv(file_path)
+    dataframe = pandas.read_csv(file_path, sep=separator)
+    dataframe.columns = dataframe.columns.str.lower()
+    return dataframe.where(pandas.notnull(dataframe), None)
 
 
-def get_email_column_values(
-    dataframe: pandas.DataFrame,
-    email_column: str = 'email',
-) -> pandas.Series:
-    return dataframe[email_column].to_list()
+if __name__ == '__main__':
+    dataframe = csv_file_to_dataframe(f'../../{settings.DATA_CSV_FILE_NAME}')

@@ -100,14 +100,16 @@ class AsyncAsanaClient:
         assignee: str | None = None,
         notes: str | None = None,
     ):
-        body = remove_none_values({
-            "data": {
-                "name": name,
-                "assignee": assignee,
-                "projects": [project_gid],
-                "notes": notes,
+        body = remove_none_values(
+            {
+                "data": {
+                    "name": name,
+                    "assignee": assignee,
+                    "projects": [project_gid],
+                    "notes": notes,
+                }
             }
-        })
+        )
 
         response = await self.http_session.post(
             url=f"{self.api_endpoint}/tasks",

@@ -6,10 +6,11 @@ from src.clients.asana import AsyncAsanaClient
 from src.utils.asana.projects import get_custom_fields
 from src.utils.asana.tasks import (
     update_tasks_likes_custom_tag_value,
-    create_multiple_tasks, get_task_data
+    create_multiple_tasks,
+    get_task_data,
 )
 from src.utils.base.log import create_logger
-from src.utils.io import csv_file_to_dataframe, get_email_column_values
+from src.utils.io import csv_file_to_dataframe
 
 logger = create_logger(__name__)
 
@@ -71,22 +72,21 @@ async def create_mailing_tasks(
         access_token=settings.ASANA_API_KEY,
         asana_api_endpoint=settings.ASANA_API_ENDPOINT,
     ) as client:
-        members = (await client.get_project_memberships(
-            project_gid=settings.ASANA_PROJECT_ID,
-            opt_fields=('user.email', 'user.name'),
-        )).get('data') or ()
+        members = (
+            await client.get_project_memberships(
+                project_gid=settings.ASANA_PROJECT_ID,
+                opt_fields=('user.email', 'user.name'),
+            )
+        ).get('data') or ()
 
-        task_data = await get_task_data(
-            template_url=template_url,
-            asana_client=client
-        )
+        task_data = await get_task_data(template_url=template_url, asana_client=client)
 
         if not task_data:
             logger.info('Forced termination due to missing task data')
             return
 
         permanent_links_for_users = await create_multiple_tasks(
-            emails=get_email_column_values(csv_file_to_dataframe(data_file)),
+            dataframe=csv_file_to_dataframe(data_file),
             asana_client=client,
             project_gid=settings.ASANA_PROJECT_ID,
             task_name=task_data.get('name'),
