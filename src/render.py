@@ -3,7 +3,7 @@ import re
 from src.entities import RenderingContent
 
 
-def replace_all_text_templates(
+def customize_template(
     text: str,
     content: RenderingContent,
 ):

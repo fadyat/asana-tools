@@ -18,3 +18,13 @@ class RenderingContent:
             setattr(self, key, value)
 
         return self
+
+
+@dataclasses.dataclass
+class AsanaTaskConfig:
+    name: str
+    project_gid: str
+    notes: str | None = None
+
+    def __post_init__(self):
+        self.notes = self.notes or {}
