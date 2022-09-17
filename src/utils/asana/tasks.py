@@ -87,8 +87,7 @@ async def create_multiple_tasks(
         rendering_content = RenderingContent(
             name=get_assignee_name(members, row.email),
             email=row.email,
-            equipment=row.equipment,
-        )
+        ).set_dynamic_fields(row.to_dict())
 
         try:
             result = await asana_client.create_task(
