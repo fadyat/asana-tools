@@ -18,3 +18,9 @@ class RenderingContent:
             setattr(self, key, value)
 
         return self
+
+
+@dataclasses.dataclass
+class TaskPermanentLink:
+    name: str
+    link: str
