@@ -2,6 +2,10 @@ import re
 
 from src.entities import RenderingContent
 
+__all__ = (
+    'customize_template', 'get_attributes',
+)
+
 
 def customize_template(
     text: str,

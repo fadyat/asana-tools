@@ -21,10 +21,6 @@ class RenderingContent:
 
 
 @dataclasses.dataclass
-class AsanaTaskConfig:
+class TaskPermanentLink:
     name: str
-    project_gid: str
-    notes: str | None = None
-
-    def __post_init__(self):
-        self.notes = self.notes or {}
+    link: str

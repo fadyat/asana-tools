@@ -1,12 +1,15 @@
 version: '3.3'
 
 services:
-  app-mailing:
+
+  api:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: asana-scripts-app-mailing
+    container_name: asana-api
+    ports:
+      - '80:80'
     volumes:
       - .:/opt/app
-    command: [ 'python', '/opt/app/cli.py', 'mailing' ]
+    command: [ 'python', '/opt/app/cli.py', 'api' ]
     working_dir: '/opt/app'

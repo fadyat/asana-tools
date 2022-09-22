@@ -5,7 +5,8 @@ import pandas
 from src.clients.asana.client import AsyncAsanaClient
 from src.clients.asana.responses.base import get_response_data
 from src.clients.asana.responses.tasks import get_assignee_name
-from src.entities import AsanaTaskConfig, RenderingContent
+from src.config.asana import AsanaTaskConfig
+from src.entities import RenderingContent, TaskPermanentLink
 from src.errors import AsanaApiError
 from src.render import customize_template
 
@@ -34,7 +35,7 @@ async def process_multiple_tasks_creation(
     asana_client: AsyncAsanaClient,
     task_config: AsanaTaskConfig,
     members: typing.Sequence[typing.Mapping],
-):
+) -> typing.Sequence[TaskPermanentLink]:
     logs = log.logger
     permanent_links_for_users = []
     for _, row in dataframe.iterrows():
@@ -55,7 +56,9 @@ async def process_multiple_tasks_creation(
             continue
 
         permanent_links_for_users.append(
-            (rendering_content.name, get_response_data(result).get('permalink_url'))
+            TaskPermanentLink(
+                rendering_content.name, get_response_data(result).get('permalink_url')
+            )
         )
 
     return permanent_links_for_users

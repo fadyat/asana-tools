@@ -2,6 +2,8 @@ import logging
 
 __all__ = ('logger',)
 
+from src import settings
+
 
 class _CustomFormatter(logging.Formatter):
     grey: str = '\x1b[38;20m'
@@ -30,9 +32,11 @@ class _CustomHandler(logging.StreamHandler):
         self.formatter = _CustomFormatter()
 
 
-def __create_logger() -> logging.Logger:
+def __create_logger(
+    log_level: str = settings.LOG_LEVEL,
+) -> logging.Logger:
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(log_level)
     logger.addHandler(_CustomHandler())
     logger.propagate = False
     return logger
