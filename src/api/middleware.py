@@ -2,6 +2,8 @@ from fastapi import applications
 from fastapi.middleware import cors
 from starlette import exceptions
 
+__all__ = ('setup',)
+
 
 # def exception_handler(request: typedef.Request, exc: Exception) -> typedef.JsonResponse:
 #     logger: typedef.Logger = getattr(request.state, 'logger', None) or request.app.logger
@@ -53,7 +55,7 @@ def setup(
 ):
     app.add_middleware(
         middleware_class=exceptions.ExceptionMiddleware,
-        handlers=app.exception_handlers
+        handlers=app.exception_handlers,
     )
     # app.add_exception_handler(
     #     exc_class_or_status_code=Exception,
@@ -72,5 +74,5 @@ def setup(
         middleware_class=cors.CORSMiddleware,
         allow_origins=['*'],
         allow_methods=['*'],
-        allow_headers=['*']
+        allow_headers=['*'],
     )

@@ -17,14 +17,28 @@ fe_router = APIRouter(
 
 
 @fe_router.get(
-    path='/tasks',
+    path='/tasks/by_template',
     response_class=HTMLResponse,
 )
 async def create_multiple_tasks_form(
     request: typedef.Request,
 ):
-    be_api_endpoint = '/api/v1/tasks'
+    be_api_endpoint = '/api/v1/tasks/by_template'
     return templates_render.TemplateResponse(
         name='tasks_by_template.html',
+        context={'request': request, 'api_endpoint': be_api_endpoint},
+    )
+
+
+@fe_router.get(
+    path='/tasks/contractor',
+    response_class=HTMLResponse,
+)
+async def get_contractor_tasks_form(
+    request: typedef.Request,
+):
+    be_api_endpoint = '/api/v1/tasks/contractor'
+    return templates_render.TemplateResponse(
+        name='tasks_contractor.html',
         context={'request': request, 'api_endpoint': be_api_endpoint},
     )

@@ -8,6 +8,11 @@ from src.config.api import HttpApiConfig
 from src.config.asana import AsanaConfig
 from src.utils import log
 
+__all__ = (
+    'create_app',
+    'run',
+)
+
 
 def create_app(
     config: HttpApiConfig,
@@ -19,8 +24,14 @@ def create_app(
         description=config.application_description,
     )
 
-    app.router.add_event_handler('startup', functools.partial(__startup, app, config, asana_config))
-    app.router.add_event_handler('shutdown', functools.partial(__shutdown, app))
+    app.router.add_event_handler(
+        'startup',
+        functools.partial(__startup, app, config, asana_config),
+    )
+    app.router.add_event_handler(
+        'shutdown',
+        functools.partial(__shutdown, app),
+    )
     middleware.setup(app)
 
     app.include_router(fe.fe_router)
@@ -54,6 +65,7 @@ def run(
 ):
     if workers_count == 1 and not reload:
         from src.api import instance
+
         app = instance.app
     else:
         app = 'src.api.instance:app'

@@ -1,3 +1,5 @@
+import typing
+
 from src.clients.asana.collections.base import AsyncAsanaCollection
 
 __all__ = ('AsyncAsanaTasksCollection',)
@@ -7,15 +9,44 @@ class AsyncAsanaTasksCollection(AsyncAsanaCollection):
     async def get_task(
         self,
         task_gid: str,
+        opt_fields: typing.Sequence[str] | None = None,
+        opt_pretty: bool | None = None,
     ):
-        return await self._client.get(endpoint=f'tasks/{task_gid}')
+        params = {
+            'opt_fields': opt_fields,
+            'opt_pretty': opt_pretty,
+        }
+
+        return await self._client.get(
+            endpoint=f'tasks/{task_gid}',
+            params=params,
+        )
 
     async def get_tasks(
         self,
-        project_gid: str,
         assignee: str | None = None,
+        project_gid: str | None = None,
+        section_gid: str | None = None,
+        workspace_gid: str | None = None,
+        completed_since: str | None = None,
+        modified_since: str | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
+        opt_pretty: bool | None = None,
+        opt_fields: typing.Sequence[str] | None = None,
     ):
-        params = {'project': project_gid, 'assignee': assignee}
+        params = {
+            'assignee': assignee,
+            'project': project_gid,
+            'section': section_gid,
+            'workspace': workspace_gid,
+            'completed_since': completed_since,
+            'modified_since': modified_since,
+            'limit': limit,
+            'offset': offset,
+            'opt_pretty': opt_pretty,
+            'opt_fields': opt_fields,
+        }
 
         return await self._client.get(
             endpoint='tasks',

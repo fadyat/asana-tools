@@ -6,7 +6,8 @@ from src.config.api import HttpApiConfig
 from src.config.asana import AsanaConfig
 
 __all__ = (
-    'Application', 'Request',
+    'Application',
+    'Request',
 )
 
 
@@ -18,3 +19,6 @@ class Application(FastAPI):
 
 class Request(FastApiRequest):
     app: Application
+
+
+Logger = logging.Logger

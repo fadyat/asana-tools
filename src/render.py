@@ -3,7 +3,8 @@ import re
 from src.entities import RenderingContent
 
 __all__ = (
-    'customize_template', 'get_attributes',
+    'customize_template',
+    'get_attributes',
 )
 
 

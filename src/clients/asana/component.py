@@ -39,40 +39,40 @@ class AsyncAsanaClientComponent:
     async def get(
         self,
         endpoint: str,
-        params: typing.MutableMapping | None = None,
-        body: typing.MutableMapping | None = None,
+        params: typing.Mapping | None = None,
+        body: typing.Mapping | None = None,
     ):
         return await self._request('get', endpoint, params, body)
 
     async def post(
         self,
         endpoint: str,
-        params: typing.MutableMapping | None = None,
-        body: typing.MutableMapping | None = None,
+        params: typing.Mapping | None = None,
+        body: typing.Mapping | None = None,
     ):
         return await self._request('post', endpoint, params, body)
 
     async def put(
         self,
         endpoint: str,
-        params: typing.MutableMapping | None = None,
-        body: typing.MutableMapping | None = None,
+        params: typing.Mapping | None = None,
+        body: typing.Mapping | None = None,
     ):
         return await self._request('put', endpoint, params, body)
 
     async def patch(
         self,
         endpoint: str,
-        params: typing.MutableMapping | None = None,
-        body: typing.MutableMapping | None = None,
+        params: typing.Mapping | None = None,
+        body: typing.Mapping | None = None,
     ):
         return await self._request('patch', endpoint, params, body)
 
     async def delete(
         self,
         endpoint: str,
-        params: typing.MutableMapping | None = None,
-        body: typing.MutableMapping | None = None,
+        params: typing.Mapping | None = None,
+        body: typing.Mapping | None = None,
     ):
         return await self._request('delete', endpoint, params, body)
 
@@ -81,13 +81,13 @@ class AsyncAsanaClientComponent:
         self,
         method: str,
         endpoint: str,
-        params: typing.MutableMapping | None = None,
-        body: typing.MutableMapping | None = None,
+        params: typing.Mapping | None = None,
+        body: typing.Mapping | None = None,
     ):
-        if not isinstance(body, typing.MutableMapping):
+        if not isinstance(body, typing.Mapping):
             body = {}
 
-        if not isinstance(params, typing.MutableMapping):
+        if not isinstance(params, typing.Mapping):
             params = {}
 
         params = remove_none_values(params)

@@ -1,6 +1,6 @@
-__all__ = ('remove_none_values',)
-
 import typing
+
+__all__ = ('remove_none_values',)
 
 
 def remove_none_values(
