@@ -1,3 +1,4 @@
+import json
 import types
 import typing
 
@@ -42,7 +43,9 @@ class AsyncAsanaClientComponent:
         params: typing.Mapping | None = None,
         body: typing.Mapping | None = None,
     ):
-        return await self._request('get', endpoint, params, body)
+        return await self._request(
+            method='get', endpoint=endpoint, params=params, body=body
+        )
 
     async def post(
         self,
@@ -50,7 +53,12 @@ class AsyncAsanaClientComponent:
         params: typing.Mapping | None = None,
         body: typing.Mapping | None = None,
     ):
-        return await self._request('post', endpoint, params, body)
+        return await self._request(
+            method='post',
+            endpoint=endpoint,
+            params=params,
+            body=body,
+        )
 
     async def put(
         self,
@@ -58,7 +66,12 @@ class AsyncAsanaClientComponent:
         params: typing.Mapping | None = None,
         body: typing.Mapping | None = None,
     ):
-        return await self._request('put', endpoint, params, body)
+        return await self._request(
+            method='put',
+            endpoint=endpoint,
+            params=params,
+            body=body,
+        )
 
     async def patch(
         self,
@@ -66,7 +79,12 @@ class AsyncAsanaClientComponent:
         params: typing.Mapping | None = None,
         body: typing.Mapping | None = None,
     ):
-        return await self._request('patch', endpoint, params, body)
+        return await self._request(
+            method='patch',
+            endpoint=endpoint,
+            params=params,
+            body=body,
+        )
 
     async def delete(
         self,
@@ -74,7 +92,12 @@ class AsyncAsanaClientComponent:
         params: typing.Mapping | None = None,
         body: typing.Mapping | None = None,
     ):
-        return await self._request('delete', endpoint, params, body)
+        return await self._request(
+            method='delete',
+            endpoint=endpoint,
+            params=params,
+            body=body,
+        )
 
     @catch_asana_api_error
     async def _request(
@@ -98,7 +121,7 @@ class AsyncAsanaClientComponent:
             url=f"{self.api_endpoint}/{endpoint}",
             headers=self.headers,
             params=params,
-            data=body,
+            data=json.dumps(body),  # errors sometimes here
         )
 
         return await response.json()

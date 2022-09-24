@@ -24,3 +24,32 @@ class RenderingContent:
 class TaskPermanentLink:
     name: str
     link: str
+
+
+@dataclasses.dataclass
+class AsanaTaskBasicObject:
+    approval_status: str | None = None
+    assignee: str | None = None
+    assignee_section: str | None = None
+    assignee_status: str | None = None
+    completed: bool | None = None
+    completed_by: typing.Mapping[str, typing.Any] | None = None
+    custom_fields: typing.Mapping[str, typing.Mapping[str, typing.Any]] | None = None
+    due_at: str | None = None
+    due_on: str | None = None
+    external: typing.Mapping[str, typing.Any] | None = None
+    followers: typing.Sequence[str] | None = None
+    html_notes: str | None = None
+    liked: bool | None = None
+    name: str | None = None
+    notes: str | None = None
+    parent: str | None = None
+    projects: typing.Sequence[str] | None = None
+    resource_subtype: str | None = None
+    start_at: str | None = None
+    start_on: str | None = None
+    tags: typing.Sequence[str] | None = None
+    workspace: str | None = None
+
+    def asdict(self) -> typing.Mapping[str, typing.Any]:
+        return self.__dict__

@@ -37,7 +37,7 @@ async def create_multiple_tasks_form(
 async def get_contractor_tasks_form(
     request: typedef.Request,
 ):
-    be_api_endpoint = '/api/v1/tasks/contractor'
+    be_api_endpoint = '/api/v1/tasks/contractor/report'
     return templates_render.TemplateResponse(
         name='tasks_contractor.html',
         context={'request': request, 'api_endpoint': be_api_endpoint},

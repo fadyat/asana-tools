@@ -1,3 +1,4 @@
+import json
 import typing
 
 from fastapi import APIRouter, Form, File, UploadFile
@@ -18,7 +19,7 @@ from src.clients.asana.handlers.tasks import (
     process_tasks_response,
 )
 from src.config.asana import AsanaTaskConfig
-from src.entities import TaskPermanentLink
+from src.entities import TaskPermanentLink, AsanaTaskBasicObject
 from src.utils.io import csv_file_to_dataframe
 
 be_router = APIRouter(
@@ -83,7 +84,7 @@ async def create_multiple_tasks_form(
     return permanent_links_for_users
 
 
-@be_router.post(  # todo: add examples, change method
+@be_router.get(  # todo: is this endpoint needed?
     path='/tasks/contractor',
     response_class=JSONResponse,
 )
@@ -123,3 +124,62 @@ async def get_completed_contractor_tasks(
     contractor_tasks = filter_tasks_by_creator(completed_tasks, contractor_email)
 
     return contractor_tasks
+
+
+@be_router.post(
+    path='/tasks/contractor/report',
+    response_class=JSONResponse,
+)
+async def report_completed_contractor_tasks(
+    request: typedef.Request,
+    asana_api_key: str = Form(...),
+    contractor_email: str = Form(...),
+    contractor_project: str = Form(...),
+    # completed_since: str = Form(...), todo: add to form
+):
+    project_gid = get_project_gid(contractor_project)
+    asana_api_endpoint = request.app.asana_config.asana_api_endpoint
+    completed_since = '2022-09-10'  # todo: from form
+
+    contractor_tasks = await get_completed_contractor_tasks(
+        request=request,
+        asana_api_key=asana_api_key,
+        contractor_email=contractor_email,
+        contractor_project=contractor_project,
+        # completed_since=completed_since, # todo: from form
+    )
+
+    async with AsyncAsanaClient(asana_api_key, asana_api_endpoint) as client:
+        agreement_project_members = await process_members_response(
+            project_gid=project_gid,
+            asana_client=client,
+        )
+
+        main_task = await client.tasks.create_task(
+            AsanaTaskBasicObject(  # todo: move to process
+                name=f'Report for {contractor_email}',
+                projects=[project_gid],
+                notes=json.dumps(contractor_tasks),  # todo: make beautiful
+                followers=[
+                    (member.get('user') or {}).get('gid')
+                    for member in agreement_project_members
+                ],
+            )
+        )
+
+        main_task_gid = main_task.get('data').get('gid')
+        subtasks = []
+        for coordinator in agreement_project_members:
+            coordinator = coordinator.get('user')
+            subtask = await client.tasks.create_subtask(
+                parent_task_gid=main_task_gid,
+                asana_task_basic_object=AsanaTaskBasicObject(
+                    assignee=coordinator.get('gid'),
+                    approval_status='pending',
+                    name=f'Agreement for {coordinator.get("name")}',
+                    notes=coordinator.get('email'),
+                ),
+            )
+            subtasks.append(subtask)
+
+    return subtasks

@@ -6,5 +6,14 @@ __all__ = ('remove_none_values',)
 def remove_none_values(
     body: typing.Mapping,
 ) -> typing.Mapping:
-    data = body.get('data') or body
-    return {key: value for key, value in data.items() if value}
+    result = {}
+    for key, value in body.items():
+        if isinstance(value, typing.Mapping):
+            value = remove_none_values(value)
+        elif isinstance(value, typing.Sequence) and not isinstance(value, str):
+            value = [v for v in value if v is not None]
+
+        if value:
+            result[key] = value
+
+    return result

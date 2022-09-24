@@ -7,7 +7,7 @@ from src.clients.asana.client import AsyncAsanaClient
 from src.clients.asana.responses.base import get_response_data
 from src.clients.asana.responses.tasks import get_assignee_name
 from src.config.asana import AsanaTaskConfig
-from src.entities import RenderingContent, TaskPermanentLink
+from src.entities import RenderingContent, TaskPermanentLink, AsanaTaskBasicObject
 from src.errors import AsanaApiError
 from src.render import customize_template
 
@@ -46,10 +46,14 @@ async def process_multiple_tasks_creation(
 
         try:
             result = await asana_client.tasks.create_task(
-                name=customize_template(task_config.name, rendering_content),
-                project_gid=task_config.project_gid,
-                notes=customize_template(task_config.notes, rendering_content),
-                assignee=row.email,
+                AsanaTaskBasicObject(
+                    name=customize_template(task_config.name, rendering_content),
+                    projects=[
+                        task_config.project_gid,
+                    ],
+                    notes=customize_template(task_config.notes, rendering_content),
+                    assignee=row.email,
+                )
             )
         except AsanaApiError:
             logs.exception('Failed to create task for %s' % row.email)
@@ -71,7 +75,7 @@ async def process_tasks_response(
     **kwargs,
 ) -> typing.Sequence[typing.Mapping]:
     tasks_response = await asana_client.tasks.get_tasks(
-        project_gid=project_gid,
+        project=project_gid,
         completed_since=completed_since,
         **kwargs,
     )

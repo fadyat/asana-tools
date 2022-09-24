@@ -1,6 +1,7 @@
 import typing
 
 from src.clients.asana.collections.base import AsyncAsanaCollection
+from src.entities import AsanaTaskBasicObject
 
 __all__ = ('AsyncAsanaTasksCollection',)
 
@@ -12,6 +13,8 @@ class AsyncAsanaTasksCollection(AsyncAsanaCollection):
         opt_fields: typing.Sequence[str] | None = None,
         opt_pretty: bool | None = None,
     ):
+        """https://developers.asana.com/docs/get-a-task"""
+
         params = {
             'opt_fields': opt_fields,
             'opt_pretty': opt_pretty,
@@ -25,9 +28,9 @@ class AsyncAsanaTasksCollection(AsyncAsanaCollection):
     async def get_tasks(
         self,
         assignee: str | None = None,
-        project_gid: str | None = None,
-        section_gid: str | None = None,
-        workspace_gid: str | None = None,
+        project: str | None = None,
+        section: str | None = None,
+        workspace: str | None = None,
         completed_since: str | None = None,
         modified_since: str | None = None,
         limit: int | None = None,
@@ -35,11 +38,13 @@ class AsyncAsanaTasksCollection(AsyncAsanaCollection):
         opt_pretty: bool | None = None,
         opt_fields: typing.Sequence[str] | None = None,
     ):
+        """https://developers.asana.com/docs/get-multiple-tasks"""
+
         params = {
             'assignee': assignee,
-            'project': project_gid,
-            'section': section_gid,
-            'workspace': workspace_gid,
+            'project': project,
+            'section': section,
+            'workspace': workspace,
             'completed_since': completed_since,
             'modified_since': modified_since,
             'limit': limit,
@@ -55,21 +60,27 @@ class AsyncAsanaTasksCollection(AsyncAsanaCollection):
 
     async def create_task(
         self,
-        name: str,
-        project_gid: str,
-        assignee: str | None = None,
-        notes: str | None = None,
+        asana_task_basic_object: AsanaTaskBasicObject,
     ):
-        body = {
-            "data": {
-                "name": name,
-                "assignee": assignee,
-                "projects": [project_gid],
-                "notes": notes,
-            }
-        }
+        """https://developers.asana.com/docs/create-a-task"""
+
+        body = {"data": asana_task_basic_object.asdict()}
 
         return await self._client.post(
             endpoint='tasks',
+            body=body,
+        )
+
+    async def create_subtask(
+        self,
+        parent_task_gid: str,
+        asana_task_basic_object: AsanaTaskBasicObject,
+    ):
+        """https://developers.asana.com/docs/create-a-subtask"""
+
+        body = {"data": asana_task_basic_object.asdict()}
+
+        return await self._client.post(
+            endpoint=f'tasks/{parent_task_gid}/subtasks',
             body=body,
         )
