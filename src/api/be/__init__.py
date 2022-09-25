@@ -167,6 +167,8 @@ async def report_completed_contractor_tasks(
             )
         )
 
+        # todo: upload pdf here
+
         main_task_gid = main_task.get('data').get('gid')
         subtasks = []
         for coordinator in agreement_project_members:

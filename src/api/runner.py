@@ -4,6 +4,7 @@ import uvicorn
 
 from src import typedef
 from src.api import middleware, fe, be
+from src.api.be import auth
 from src.config.api import HttpApiConfig
 from src.config.asana import AsanaConfig
 from src.utils import log
@@ -36,6 +37,7 @@ def create_app(
 
     app.include_router(fe.fe_router)
     app.include_router(be.be_router)
+    app.include_router(auth.asana_auth_router)
 
     return app
 

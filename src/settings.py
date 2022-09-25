@@ -2,11 +2,24 @@ from envparse import env
 
 env.read_envfile()
 
+# For authorization
+ASANA_CLIENT_ID = env.str('ASANA_CLIENT_ID')
+ASANA_CLIENT_SECRET = env.str('ASANA_CLIENT_SECRET')
+ASANA_REDIRECT_URI = env.str(
+    'ASANA_REDIRECT_URI', default='http://localhost:80/api/v1/callback'
+)
+
 # Default
 LOG_LEVEL = env.str('LOG_LEVEL', default='INFO')
 CSV_SEPERATOR = env.str('PANDAS_SEPERATOR', default=';')
 ASANA_API_ENDPOINT = env.str(
     'ASANA_API_ENDPOINT', default='https://app.asana.com/api/1.0'
+)
+ASANA_AUTH_ENDPOINT = env.str(
+    'ASANA_AUTH_ENDPOINT', default='https://app.asana.com/-/oauth_authorize'
+)
+ASANA_API_TOKEN_ENDPOINT = env.str(
+    'ASANA_API_TOKEN_ENDPOINT', default='https://app.asana.com/-/oauth_token'
 )
 
 # Backend

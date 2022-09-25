@@ -16,6 +16,8 @@ class AsanaTaskConfig:
 @dataclasses.dataclass
 class AsanaConfig:
     asana_api_endpoint: str
+    asana_auth_endpoint: str
+    asana_api_token_endpoint: str
 
 
 def create_asana_config(
@@ -23,4 +25,6 @@ def create_asana_config(
 ):
     return AsanaConfig(
         asana_api_endpoint=asana_api_endpoint,
+        asana_auth_endpoint=settings.ASANA_AUTH_ENDPOINT,
+        asana_api_token_endpoint=settings.ASANA_API_TOKEN_ENDPOINT,
     )

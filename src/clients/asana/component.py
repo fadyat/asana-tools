@@ -17,10 +17,12 @@ class AsyncAsanaClientComponent:
         access_token: str,
         asana_api_endpoint: str = settings.ASANA_API_ENDPOINT,
         http_session: aiohttp.ClientSession | None = None,
+        headers: typing.Mapping[str, str] | None = None,
     ):
         self.http_session = http_session or aiohttp.ClientSession()
         self.access_token = access_token
         self.api_endpoint = asana_api_endpoint
+        self._headers = headers or {}
 
     async def __aenter__(self):
         return self
@@ -35,7 +37,10 @@ class AsyncAsanaClientComponent:
 
     @property
     def headers(self):
-        return {"Authorization": f"Bearer {self.access_token}"}
+        return {
+            "Authorization": f"Bearer {self.access_token}",
+            **self._headers,
+        }
 
     async def get(
         self,
