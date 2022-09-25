@@ -59,6 +59,8 @@ async def process_multiple_tasks_creation(
             logs.exception('Failed to create task for %s' % row.email)
             continue
 
+        logs.info('Task created for %s' % row.email)
+
         permanent_links_for_users.append(
             TaskPermanentLink(
                 rendering_content.name, get_response_data(result).get('permalink_url')

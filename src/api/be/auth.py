@@ -85,3 +85,12 @@ async def asana_authorization_callback(
     )
 
     return token_response
+
+
+@asana_auth_router.get('/access_token')
+async def asana_get_access_token(
+    request: typedef.Request,
+):
+    return typedef.JSONResponse(
+        content={'access_token': request.cookies.get('access_token')},
+    )

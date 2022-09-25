@@ -30,3 +30,4 @@ class Request(requests.Request):
 Logger = logging.Logger
 Response = responses.Response
 RedirectResponse = responses.RedirectResponse
+JSONResponse = responses.JSONResponse
