@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -38,7 +40,14 @@ async def get_contractor_tasks_form(
     request: typedef.Request,
 ):
     be_api_endpoint = '/api/v1/tasks/contractor/report'
+    current_date = datetime.utcnow()
+    prev_month_date = current_date.replace(month=current_date.month - 1)
+
     return templates_render.TemplateResponse(
         name='tasks_contractor.html',
-        context={'request': request, 'api_endpoint': be_api_endpoint},
+        context={
+            'request': request,
+            'api_endpoint': be_api_endpoint,
+            'prev_month': prev_month_date.strftime('%Y-%m-%d'),
+        },
     )

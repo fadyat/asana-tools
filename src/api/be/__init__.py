@@ -2,7 +2,6 @@ import json
 import typing
 
 from fastapi import APIRouter, Form, File, UploadFile
-from fastapi.responses import JSONResponse
 
 from src import typedef
 from src.clients.asana.client import AsyncAsanaClient
@@ -33,7 +32,7 @@ be_router = APIRouter(
 
 @be_router.post(
     path='/tasks/by_template',
-    response_class=JSONResponse,
+    response_class=typedef.JSONResponse,
     responses={
         200: {
             'description': 'Successful response',
@@ -87,40 +86,39 @@ async def create_multiple_tasks_form(
     return permanent_links_for_users
 
 
+__completed_tasks_opt_fields = (  # todo: move to another file
+    'name',
+    'completed',
+    'completed_at',
+    'name',
+    'created_by',
+    'created_by.name',
+    'created_by.email',
+    'followers',
+    'followers.name',
+)
+
+
 @be_router.get(  # todo: is this endpoint needed?
     path='/tasks/contractor',
-    response_class=JSONResponse,
+    response_class=typedef.JSONResponse,
 )
 async def get_completed_contractor_tasks(
     request: typedef.Request,
     contractor_email: str = Form(...),
     contractor_project: str = Form(...),
-    # completed_since: str = Form(...), todo: add to form
+    completed_since: str = Form(...),
 ):
     access_token = request.cookies.get('access_token')
     project_gid = get_project_gid(contractor_project)
     asana_api_endpoint = request.app.asana_config.asana_api_endpoint
-    completed_since = '2022-09-10'  # todo add to form
-
-    opt_fields = (  # todo: move to another file
-        'name',
-        'completed',
-        'completed_at',
-        'name',
-        'created_by',
-        'created_by.name',
-        'created_by.email',
-        'followers',
-        'followers.name',
-    )
 
     async with AsyncAsanaClient(access_token, asana_api_endpoint) as client:
-        # completed and uncompleted tasks after `completed_since` value
         all_tasks = await process_tasks_response(
             project_gid=project_gid,
             asana_client=client,
             completed_since=completed_since,
-            opt_fields=opt_fields,
+            opt_fields=__completed_tasks_opt_fields,
         )
 
     completed_tasks = filter_tasks_by_complete_status(all_tasks)
@@ -131,24 +129,23 @@ async def get_completed_contractor_tasks(
 
 @be_router.post(
     path='/tasks/contractor/report',
-    response_class=JSONResponse,
+    response_class=typedef.JSONResponse,
 )
 async def report_completed_contractor_tasks(
     request: typedef.Request,
     contractor_email: str = Form(...),
     contractor_project: str = Form(...),
-    # completed_since: str = Form(...), todo: add to form
+    completed_since: str = Form(...),
 ):
     project_gid = get_project_gid(contractor_project)
     asana_api_endpoint = request.app.asana_config.asana_api_endpoint
     access_token = request.cookies.get('access_token')
-    completed_since = '2022-09-10'  # todo: from form
 
     contractor_tasks = await get_completed_contractor_tasks(
         request=request,
         contractor_email=contractor_email,
         contractor_project=contractor_project,
-        # completed_since=completed_since, # todo: from form
+        completed_since=completed_since,
     )
 
     async with AsyncAsanaClient(access_token, asana_api_endpoint) as client:
@@ -157,8 +154,8 @@ async def report_completed_contractor_tasks(
             asana_client=client,
         )
 
-        main_task = await client.tasks.create_task(
-            AsanaTaskBasicObject(  # todo: move to process
+        main_task = await client.tasks.create_task(  # todo: move to process
+            AsanaTaskBasicObject(
                 name=f'Report for {contractor_email}',
                 projects=[project_gid],
                 notes=json.dumps(contractor_tasks),  # todo: make beautiful
@@ -175,7 +172,7 @@ async def report_completed_contractor_tasks(
         subtasks = []
         for coordinator in agreement_project_members:
             coordinator = coordinator.get('user')
-            subtask = await client.tasks.create_subtask(
+            subtask = await client.tasks.create_subtask(  # todo: move to process
                 parent_task_gid=main_task_gid,
                 asana_task_basic_object=AsanaTaskBasicObject(
                     assignee=coordinator.get('gid'),
