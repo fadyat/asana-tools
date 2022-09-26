@@ -1,7 +1,7 @@
 import json
 import typing
 
-from fastapi import APIRouter, Form, File, UploadFile
+from fastapi import APIRouter, Form, UploadFile
 
 from src import typedef
 from src.clients.asana.client import AsyncAsanaClient
@@ -47,10 +47,10 @@ be_router = APIRouter(
         },
     },
 )
-async def create_multiple_tasks_form(
+async def create_multiple_tasks_by_template(
     request: typedef.Request,
-    asana_template_url: str = Form(...),
-    uploaded_file: UploadFile = File(...),
+    asana_template_url: str,
+    uploaded_file: UploadFile,
 ) -> typing.Sequence[TaskPermanentLink]:
     logs = request.app.logger
     logs.info('Start creating mailing tasks')
