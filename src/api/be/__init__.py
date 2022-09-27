@@ -158,15 +158,13 @@ async def report_completed_contractor_tasks(
         )
 
         notes_data = get_task_name_with_permalink_url(contractor_tasks)
-        ol_of_notes = contractor_notes_data_to_ol(notes_data)
-
-        print(wrap_in_body(ol_of_notes))
+        ol_notes = contractor_notes_data_to_ol(notes_data)
 
         main_task = await client.tasks.create_task(  # todo: move to process
             AsanaTaskBasicObject(
                 name=f'Report for {contractor_email}',
                 projects=[project_gid],
-                html_notes=wrap_in_body(ol_of_notes),
+                html_notes=wrap_in_body(ol_notes),
                 followers=[
                     (member.get('user') or {}).get('gid')
                     for member in agreement_project_members
@@ -180,15 +178,16 @@ async def report_completed_contractor_tasks(
         subtasks = []
         for coordinator in agreement_project_members:
             coordinator = coordinator.get('user')
-            subtask = await client.tasks.create_subtask(  # todo: move to process
+            subtask_response = await client.tasks.create_subtask(  # todo: move to process
                 parent_task_gid=main_task_gid,
                 asana_task_basic_object=AsanaTaskBasicObject(
                     assignee=coordinator.get('gid'),
-                    approval_status='pending',
                     name=f'Agreement for {coordinator.get("name")}',
+                    resource_subtype='approval',
                     notes=coordinator.get('email'),
                 ),
             )
-            subtasks.append(subtask)
+
+        subtasks.append(subtask_response)
 
     return subtasks

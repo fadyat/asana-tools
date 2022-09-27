@@ -84,3 +84,17 @@ class AsyncAsanaTasksCollection(AsyncAsanaCollection):
             endpoint=f'tasks/{parent_task_gid}/subtasks',
             body=body,
         )
+
+    async def update_task(
+        self,
+        task_gid: str,
+        asana_task_basic_object: AsanaTaskBasicObject,
+    ):
+        """https://developers.asana.com/docs/update-a-task"""
+
+        body = {"data": asana_task_basic_object.asdict()}
+
+        return await self._client.put(
+            endpoint=f'tasks/{task_gid}',
+            body=body,
+        )

@@ -7,7 +7,7 @@ API_PORT = env.int('API_PORT', default=80)
 ASANA_CLIENT_ID = env.str('ASANA_CLIENT_ID')
 ASANA_CLIENT_SECRET = env.str('ASANA_CLIENT_SECRET')
 ASANA_REDIRECT_URI = env.str(
-    'ASANA_REDIRECT_URI', default=f'http://127.0.0.1:{API_PORT}/api/v1/callback'
+    'ASANA_REDIRECT_URI', default=f'http://localhost:{API_PORT}/api/v1/callback'
 )
 
 # Default
