@@ -9,7 +9,7 @@ from src.clients.asana.filters.projects import get_project_gid
 from src.clients.asana.filters.tasks import (
     get_task_gid,
     filter_tasks_by_complete_status,
-    filter_tasks_by_creator,
+    filter_tasks_by_completed_before,
 )
 from src.clients.asana.handlers.projects import process_members_response
 from src.clients.asana.handlers.tasks import (
@@ -105,9 +105,9 @@ __completed_tasks_opt_fields = (  # todo: move to another file
 )
 async def get_completed_contractor_tasks(
     request: typedef.Request,
-    contractor_email: str = Form(...),
     contractor_project: str = Form(...),
     completed_since: str = Form(...),
+    completed_before: str = Form(...),
 ):
     access_token = request.cookies.get('access_token')
     project_gid = get_project_gid(contractor_project)
@@ -122,7 +122,7 @@ async def get_completed_contractor_tasks(
         )
 
     completed_tasks = filter_tasks_by_complete_status(all_tasks)
-    contractor_tasks = filter_tasks_by_creator(completed_tasks, contractor_email)
+    contractor_tasks = filter_tasks_by_completed_before(completed_tasks, completed_before)
 
     return contractor_tasks
 
@@ -136,6 +136,7 @@ async def report_completed_contractor_tasks(
     contractor_email: str = Form(...),
     contractor_project: str = Form(...),
     completed_since: str = Form(...),
+    completed_before: str = Form(...),
 ):
     project_gid = get_project_gid(contractor_project)
     asana_api_endpoint = request.app.asana_config.asana_api_endpoint
@@ -143,9 +144,9 @@ async def report_completed_contractor_tasks(
 
     contractor_tasks = await get_completed_contractor_tasks(
         request=request,
-        contractor_email=contractor_email,
         contractor_project=contractor_project,
         completed_since=completed_since,
+        completed_before=completed_before,
     )
 
     async with AsyncAsanaClient(access_token, asana_api_endpoint) as client:

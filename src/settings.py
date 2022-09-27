@@ -3,10 +3,11 @@ from envparse import env
 env.read_envfile()
 
 # For authorization
+API_PORT = env.int('API_PORT', default=80)
 ASANA_CLIENT_ID = env.str('ASANA_CLIENT_ID')
 ASANA_CLIENT_SECRET = env.str('ASANA_CLIENT_SECRET')
 ASANA_REDIRECT_URI = env.str(
-    'ASANA_REDIRECT_URI', default='http://localhost:80/api/v1/callback'
+    'ASANA_REDIRECT_URI', default=f'http://127.0.0.1:{API_PORT}/api/v1/callback'
 )
 
 # Default
@@ -26,5 +27,4 @@ ASANA_API_TOKEN_ENDPOINT = env.str(
 APPLICATION_NAME = env.str('APPLICATION_NAME', default='name')
 APPLICATION_DESCRIPTION = env.str('APPLICATION_DESCRIPTION', default='description')
 APPLICATION_VERSION = env.str('APPLICATION_VERSION', default='v1')
-API_PORT = env.int('API_PORT', default=80)
 API_WORKERS_COUNT = env.int('API_WORKERS_COUNT', default=1)

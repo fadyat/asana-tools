@@ -5,7 +5,7 @@ from src.errors import AsanaInvalidParameterError
 __all__ = (
     'get_task_gid',
     'filter_tasks_by_complete_status',
-    'filter_tasks_by_creator',
+    'filter_tasks_by_completed_before'
 )
 
 
@@ -40,3 +40,10 @@ def filter_tasks_by_creator(
             creator_tasks.append(task)
 
     return creator_tasks
+
+
+def filter_tasks_by_completed_before(
+    tasks: typing.Sequence[typing.Mapping],
+    completed_before: str,
+) -> typing.Sequence[typing.Mapping]:
+    return [task for task in tasks if task.get('completed_at') < completed_before]

@@ -71,6 +71,7 @@ def get_contractor_tasks_form(
             'request': request,
             'api_endpoint': be_api_endpoint,
             'prev_month': prev_month_date.strftime('%Y-%m-%d'),
+            'current_date': current_date.strftime('%Y-%m-%d'),
         },
     )
 
