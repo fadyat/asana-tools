@@ -1,4 +1,3 @@
-import json
 import typing
 
 from fastapi import APIRouter, Form, UploadFile
@@ -17,8 +16,10 @@ from src.clients.asana.handlers.tasks import (
     process_multiple_tasks_creation,
     process_tasks_response,
 )
+from src.clients.asana.responses.tasks import get_task_name_with_permalink_url
 from src.config.asana import AsanaTaskConfig
 from src.entities import TaskPermanentLink, AsanaTaskBasicObject
+from src.render import contractor_notes_data_to_ol, wrap_in_body
 from src.utils.io import csv_file_to_dataframe
 
 be_router = APIRouter(
@@ -96,6 +97,7 @@ __completed_tasks_opt_fields = (  # todo: move to another file
     'created_by.email',
     'followers',
     'followers.name',
+    'permalink_url',
 )
 
 
@@ -108,7 +110,7 @@ async def get_completed_contractor_tasks(
     contractor_project: str = Form(...),
     completed_since: str = Form(...),
     completed_before: str = Form(...),
-):
+) -> typing.Sequence[typing.Mapping]:
     access_token = request.cookies.get('access_token')
     project_gid = get_project_gid(contractor_project)
     asana_api_endpoint = request.app.asana_config.asana_api_endpoint
@@ -133,7 +135,7 @@ async def get_completed_contractor_tasks(
 )
 async def report_completed_contractor_tasks(
     request: typedef.Request,
-    contractor_email: str = Form(...),
+    contractor_email: str | None = Form(':)'),
     contractor_project: str = Form(...),
     completed_since: str = Form(...),
     completed_before: str = Form(...),
@@ -155,11 +157,16 @@ async def report_completed_contractor_tasks(
             asana_client=client,
         )
 
+        notes_data = get_task_name_with_permalink_url(contractor_tasks)
+        ol_of_notes = contractor_notes_data_to_ol(notes_data)
+
+        print(wrap_in_body(ol_of_notes))
+
         main_task = await client.tasks.create_task(  # todo: move to process
             AsanaTaskBasicObject(
                 name=f'Report for {contractor_email}',
                 projects=[project_gid],
-                notes=json.dumps(contractor_tasks),  # todo: make beautiful
+                html_notes=wrap_in_body(ol_of_notes),
                 followers=[
                     (member.get('user') or {}).get('gid')
                     for member in agreement_project_members
