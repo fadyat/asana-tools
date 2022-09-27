@@ -53,6 +53,6 @@ def contractor_notes_data_to_ol(
 
 
 def wrap_in_body(
-    text: str,
+    text: typing.Sequence[str],
 ) -> str:
-    return f'<body>{text}</body>'
+    return f"<body>{''.join(text)}</body>"

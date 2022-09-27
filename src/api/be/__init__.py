@@ -135,12 +135,16 @@ async def get_completed_contractor_tasks(
 )
 async def report_completed_contractor_tasks(
     request: typedef.Request,
-    contractor_email: str | None = Form(':)'),
+    contractor_email: str = Form(':)'),
     contractor_project: str = Form(...),
     completed_since: str = Form(...),
     completed_before: str = Form(...),
+    report_project: str | None = Form(None),
 ):
-    project_gid = get_project_gid(contractor_project)
+    if not report_project:
+        report_project = contractor_project
+
+    report_project_gid = get_project_gid(report_project)
     asana_api_endpoint = request.app.asana_config.asana_api_endpoint
     access_token = request.cookies.get('access_token')
 
@@ -153,18 +157,27 @@ async def report_completed_contractor_tasks(
 
     async with AsyncAsanaClient(access_token, asana_api_endpoint) as client:
         agreement_project_members = await process_members_response(
-            project_gid=project_gid,
+            project_gid=report_project_gid,
             asana_client=client,
         )
 
+        me_response = await client.users.me()
+        me = me_response.get('data')  # todo: refactor
+
+        header = f'Выполненные задачи {contractor_email} за {completed_since} - {completed_before}'
         notes_data = get_task_name_with_permalink_url(contractor_tasks)
         ol_notes = contractor_notes_data_to_ol(notes_data)
+        footer = f'С уважением, {me.get("name")}'
 
         main_task = await client.tasks.create_task(  # todo: move to process
             AsanaTaskBasicObject(
                 name=f'Report for {contractor_email}',
-                projects=[project_gid],
-                html_notes=wrap_in_body(ol_notes),
+                projects=[report_project_gid],
+                html_notes=wrap_in_body([
+                    header,
+                    ol_notes,
+                    footer
+                ]),
                 followers=[
                     (member.get('user') or {}).get('gid')
                     for member in agreement_project_members
