@@ -1,7 +1,7 @@
 ## Start
 
 ```docker
-docker-compose build {{service-name}} && docker-compose up {{service-name}}
+docker-compose build api && docker-compose up api
 ```
 
 > Сейчас все данные вводятся в формочку
