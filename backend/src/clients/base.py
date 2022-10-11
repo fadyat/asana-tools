@@ -118,4 +118,6 @@ class HttpClient:
             data=body,
         )
 
+        # todo: specify response code for handling errors
+
         return await response.json()

@@ -65,6 +65,7 @@ async def report_completed_contractor_tasks(
     request: typedef.Request,
     model: ReportData,
 ):
+    logs = request.app.logger
     report_project_gid = get_project_gid(model.report_project)
     asana_api_endpoint = request.app.asana_config.asana_api_endpoint
 
@@ -104,6 +105,7 @@ async def report_completed_contractor_tasks(
                 ],
             )
         )
+        logs.info('Created main task %s', main_task.get('gid'))
 
         for coordinator in agreement_project_members:
             if not (user := coordinator.get('user')):
@@ -117,5 +119,6 @@ async def report_completed_contractor_tasks(
                     resource_subtype='approval',
                 ),
             )
+            logs.info('Created subtask for %s', user.get('name'))
 
     return {'status': 'ok'}
