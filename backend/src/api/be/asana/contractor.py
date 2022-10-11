@@ -121,4 +121,4 @@ async def report_completed_contractor_tasks(
             )
             logs.info('Created subtask for %s', user.get('name'))
 
-    return {'status': 'ok'}
+    return {'result': {'status': 'ok'}}

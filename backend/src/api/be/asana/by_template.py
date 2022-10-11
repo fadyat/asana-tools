@@ -1,7 +1,5 @@
 from fastapi import APIRouter, Form, UploadFile, File
 
-from fastapi import APIRouter, Form, UploadFile, File
-
 from src import typedef
 from src.clients.asana.client import AsyncAsanaClient
 from src.clients.asana.filters.projects import get_project_gid
@@ -54,4 +52,4 @@ async def create_tasks_by_template(
             logs=logs,
         )
 
-    return {'status': 'ok'}
+    return {'result': {'status': 'ok'}}
