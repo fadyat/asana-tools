@@ -1,0 +1,22 @@
+.form-object {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 50px;
+}
+
+.form-object-field {
+    display: flex;
+    flex-direction: column;
+    margin: 7px;
+}
+
+.form-object-formcontrol {
+    outline: 0.1rem solid #123456;
+    width: 40%;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+
