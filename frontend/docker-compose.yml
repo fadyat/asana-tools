@@ -1,8 +1,8 @@
 version: '3.7'
 
 services:
-  sample:
-    container_name: sample
+  asana-tools-frontend:
+    container_name: asana-tools-frontend
     build:
       context: .
       dockerfile: Dockerfile
