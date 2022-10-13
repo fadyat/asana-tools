@@ -12,7 +12,7 @@ async def process_members_response(
 ):
     members_response = await asana_client.projects.get_members(project_gid, opt_fields)
 
-    if not (members := get_response_data(members_response)):
+    if (members := get_response_data(members_response)) is None:
         raise AsanaApiError('Empty members response for project %s' % project_gid)
 
     return members

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "71e3d4fee176f9c45b39a34f43be67edf43e3ba5c5f93ccecb92303679d9ed19"
+            "sha256": "e363a3b8ce53235344c04e204c8b1078a89a4fc760591a57e421791343529706"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -163,6 +163,15 @@
             ],
             "index": "pypi",
             "version": "==0.4.0"
+        },
+        "fpdf": {
+            "hashes": [
+                "sha256:0a94eb783ee933e32a44ad949a1aa6c3ca6fb35b608db53f8b216aec52fc1fb5",
+                "sha256:125840783289e7d12552b1e86ab692c37322e7a65b96a99e0ea86cca041b6779",
+                "sha256:9542f6ad0791d673955da954a0cf3554a0affac79deab87bee06b9b4d4e60990"
+            ],
+            "index": "pypi",
+            "version": "==1.7.2"
         },
         "frozenlist": {
             "hashes": [
@@ -464,7 +473,7 @@
                 "sha256:e0bedafe4bc165ad0a56ac0bd7695df25c50f76961da29c050712596cf092d6d",
                 "sha256:e9069e1b01525a96e6ff49e25876d90d5a563bc31c658289a8772ae186552236"
             ],
-            "markers": "python_version >= '3.7'",
+            "index": "pypi",
             "version": "==1.10.2"
         },
         "python-dateutil": {
@@ -510,7 +519,7 @@
                 "sha256:42fcf3122f998fefce3e2c5ad7e5edbf0f02cf685d646a83a08d404726af5084",
                 "sha256:c0414d5a56297d37f3db96a84034d61ce29889b9eaccf65eb98a0b39441fcaa3"
             ],
-            "markers": "python_version >= '3.7'",
+            "index": "pypi",
             "version": "==0.20.4"
         },
         "termcolor": {
