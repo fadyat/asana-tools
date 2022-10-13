@@ -10,6 +10,8 @@ class AsyncAsanaProjectsCollection(AsyncAsanaCollection):
         self,
         project_gid: str,
     ):
+        """https://developers.asana.com/docs/get-a-project"""
+
         return await self._client.get(
             endpoint=f'projects/{project_gid}',
         )

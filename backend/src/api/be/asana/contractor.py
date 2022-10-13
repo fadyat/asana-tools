@@ -68,6 +68,7 @@ async def report_completed_contractor_tasks(
     logs = request.app.logger
     report_project_gid = get_project_gid(model.report_project)
     asana_api_endpoint = request.app.asana_config.asana_api_endpoint
+    contractor_project_gid = get_project_gid(model.contractor_project)
 
     contractor_tasks = await get_completed_contractor_tasks(
         request=request,
@@ -88,10 +89,17 @@ async def report_completed_contractor_tasks(
             opt_fields=('user.email', 'user.name'),
         )
 
+        contractor_project = await client.projects.get_project(
+            project_gid=contractor_project_gid,
+        )
+        asana_project_name = contractor_project.get('name')
+
         notes_data = get_task_name_with_permalink_url(contractor_tasks)
+        completed_since = model.completed_since[:10]  # todo: rename and remove hardcode
+        completed_before = model.completed_before[:10]
+
         task_name = (
-            f'Tasks {model.contractor_email}'
-            f'since {model.completed_since} before {model.completed_before}'
+            f'{asana_project_name} from {completed_since} to {completed_before}'
         )
 
         main_task = await client.tasks.create_task(

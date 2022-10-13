@@ -59,7 +59,6 @@ class AsanaTaskBasicObject:
 
 
 class ReportData(pydantic.BaseModel):
-    contractor_email: str
     contractor_project: str
     completed_since: str
     completed_before: str

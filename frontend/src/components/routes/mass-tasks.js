@@ -94,8 +94,8 @@ export default function MassTasks() {
                     >
                         Submit
                     </Button>
-                    {alertContent ? displayAlert(alertContent, alertSeverity) : <></>}
                 </div>
+                {alertContent ? displayAlert(alertContent, alertSeverity) : <></>}
             </FormControl>
         </div>
     );
