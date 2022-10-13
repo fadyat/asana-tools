@@ -2,11 +2,11 @@ version: '3.3'
 
 services:
 
-  api:
+  asana-tools-backend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: asana-api
+    container_name: asana-tools-backend
     ports:
       - '80:80'
     volumes:
