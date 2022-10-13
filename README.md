@@ -1,52 +1,53 @@
-### Asana-tools
+## Asana-tools
 
 This is a collection of tools for working with Asana.
 
-#### Functionality
+### Functionality
 
 - OAuth2 authentication with Asana
 - Creating mass tasks by parsing a CSV file and template task
 - Creating a report of all tasks in a project during a given time period
 
-#### Before deploy
+### Before deploy
 
 - Create a new Asana app at https://app.asana.com/-/account_api
 - Set the redirect URI, example: `http://localhost:80/api/v1/callback`
 - Set the environment variables `ASANA_CLIENT_ID` and `ASANA_CLIENT_SECRET` to the values from the Asana app
 
-#### Deploy
+### Deploy
 
-- **Backend**
+#### Backend
 
-    - Make `.env` file with the following variables:
+- Make `.env` file with the following variables:
 
-      ```dotenv
-      ASANA_CLIENT_ID=<your asana client id>
-      ASANA_CLIENT_SECRET=<your asana client secret>
-      JWT_SECRET_KEY=<your generated uuid> 
-      ```
+  ```dotenv
+  ASANA_CLIENT_ID=<your asana client id>
+  ASANA_CLIENT_SECRET=<your asana client secret>
+  JWT_SECRET_KEY=<your generated uuid>
+  ```
 
-    - Build and run container:
+- Build and run container:
+
     ```shell
     $ cd backend
     $ docker-compose up --build asana-tools-backend
     ```
 
-- **Frontend**
+#### Frontend
 
-    - Make `.env` file with the following variables:
+- Make `.env` file with the following variables:
 
-    ```dotenv
-    REACT_APP_BACKEND_URI=<your base backend uri>
-    // for example: http://localhost:80/api/v1/ 
-    ```
+  ```dotenv
+  REACT_APP_BACKEND_URI=<your base backend uri>
+  // for example: http://localhost:80/api/v1/
+  ```
 
-    - Build and run container:
+- Build and run container:
 
-    ```shell
-    $ cd frontend
-    $ docker-compose up --build asana-tools-frontend
-    ```
+  ```shell
+  $ cd frontend
+  $ docker-compose up --build asana-tools-frontend
+  ```
 
 #### Usage
 
