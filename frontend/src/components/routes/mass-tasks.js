@@ -1,6 +1,7 @@
 import {Button, FormControl, TextField} from "@mui/material";
 import React from "react";
 import "../../styles/Forms.css"
+import displayAlert from "../asana/Alerts";
 
 const callBackendAPI = async (formData) => {
     const apiEndpoint = process.env.REACT_APP_BACKEND_URI + "tasks/by_template";
@@ -11,37 +12,44 @@ const callBackendAPI = async (formData) => {
     }
 
     const response = await fetch(apiEndpoint, {
-        method: 'POST',
-        credentials: 'include',
-        body: data
+        method: 'POST', credentials: 'include', body: data
     });
-    const body = await response.json();
 
-    if (response.status !== 200) {
-        throw Error(body.message)
+    const response_body = await response.json();
+    if (response.status >= 400) {
+        throw new Error(response_body.error.message);
     }
 
-    return body;
+    return response_body.result;
 }
 
 
 export default function MassTasks() {
+    const alerting = (content) => {
+        setAlertContent(content)
+        setTimeout(() => {
+            setAlertContent(null)
+        }, 10000)
+    }
+
+
+    const [alertContent, setAlertContent] = React.useState(null);
+    const [alertSeverity, setAlertSeverity] = React.useState("success");
+
     const [props, setProps] = React.useState({
-        asana_template_url: "",
-        uploaded_file: null,
+        asana_template_url: "", uploaded_file: null,
     });
 
     const handleChange = (event) => {
         setProps((prevState) => ({
-            ...prevState,
-            [event.target.name]: event.target.value
+            ...prevState, [event.target.name]: event.target.value
         }));
     }
 
 
     return (
         <div className="form-object">
-            <FormControl class="form-object-formcontrol">
+            <FormControl className="form-object-formcontrol">
                 <div className="form-object-field">
                     <TextField
                         id="task_template"
@@ -63,8 +71,7 @@ export default function MassTasks() {
                         }}
                         onChange={(event) => {
                             setProps((prevState) => ({
-                                ...prevState,
-                                uploaded_file: event.target.files[0]
+                                ...prevState, uploaded_file: event.target.files[0]
                             }));
                         }}
                     />
@@ -76,17 +83,20 @@ export default function MassTasks() {
                             callBackendAPI([
                                 ["asana_template_url", props.asana_template_url],
                                 ["uploaded_file", props.uploaded_file]
-                            ]).then(
-                                res => console.log(res) // TODO: add alert
-                            ).catch(
-                                err => console.log(err) // TODO: add alert
-                            );
+                            ]).then((r) => {
+                                alerting(r.status)
+                                setAlertSeverity("success")
+                            }).catch((err) => {
+                                alerting(err.message)
+                                setAlertSeverity("error")
+                            })
                         }}
                     >
                         Submit
                     </Button>
+                    {alertContent ? displayAlert(alertContent, alertSeverity) : <></>}
                 </div>
             </FormControl>
         </div>
-    )
+    );
 }

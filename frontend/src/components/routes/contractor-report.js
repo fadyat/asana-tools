@@ -4,6 +4,7 @@ import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {DatePicker} from "@mui/x-date-pickers";
 import "../../styles/Forms.css"
+import displayAlert from "../asana/Alerts";
 
 const callBackendAPI = async (request_body) => {
     const apiEndpoint = process.env.REACT_APP_BACKEND_URI + "tasks/contractor/report";
@@ -15,33 +16,27 @@ const callBackendAPI = async (request_body) => {
         },
         credentials: 'include',
         body: JSON.stringify(request_body),
-    });
-    const body = await response.json();
-
-    if (response.status !== 200) {
-        throw Error(body.message)
+    })
+    const response_body = await response.json();
+    if (response.status >= 400) {
+        throw new Error(response_body.error.message);
     }
 
-    return body;
+    return response_body.result;
 }
 
-// const displayAlert = (err) => {
-//     return (
-//         <Snackbar
-//             open={true}
-//             autoHideDuration={6000}
-//         >
-//             <Alert
-//                 severity="success"
-//                 sx={{width: '100%'}}
-//             >
-//                 err.message
-//             </Alert>
-//         </Snackbar>
-//     );
-// }
-
 export default function ContractorReport() {
+
+    const alerting = (content) => {
+        setAlertContent(content)
+        setTimeout(() => {
+            setAlertContent(null)
+        }, 10000)
+    }
+
+
+    const [alertContent, setAlertContent] = React.useState(null);
+    const [alertSeverity, setAlertSeverity] = React.useState("success");
 
     const [params, setParams] = React.useState({
         contractor_email: "",
@@ -134,22 +129,22 @@ export default function ContractorReport() {
                     <Button
                         variant="contained"
                         type="submit"
-                        onClick={
-                            () => {
-                                callBackendAPI(params).then((res) => {
-                                        console.log(res); // TODO: do the alert here
-                                    }
-                                ).catch(err => { // TODO: do the alert here
-                                    console.log(err);
-                                })
-                            }
-                        }
+                        onClick={() => {
+                            callBackendAPI(params).then((r) => {
+                                alerting(r.status)
+                                setAlertSeverity("success")
+                            }).catch((err) => {
+                                alerting(err.message)
+                                setAlertSeverity("error")
+                            })
+                        }}
                         className="form-object-field"
-                    >Submit
+                    >
+                        Submit
                     </Button>
+                    {alertContent ? displayAlert(alertContent, alertSeverity) : <></>}
                 </div>
             </FormControl>
         </div>
-    )
-        ;
+    );
 }
