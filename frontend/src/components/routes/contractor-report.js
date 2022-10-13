@@ -39,7 +39,6 @@ export default function ContractorReport() {
     const [alertSeverity, setAlertSeverity] = React.useState("success");
 
     const [params, setParams] = React.useState({
-        contractor_email: "",
         report_project: "",
         contractor_project: "",
         completed_since: new Date(),
@@ -70,17 +69,6 @@ export default function ContractorReport() {
                 </div>
                 <div className="form-object-field">
                     <TextField
-                        id="contractor_email"
-                        label="Contractor email"
-                        variant="outlined"
-                        required={false}
-                        name="contractor_email"
-                        value={params.contractor_email}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className="form-object-field">
-                    <TextField
                         id="report_project"
                         label="Report project"
                         variant="outlined"
@@ -93,7 +81,7 @@ export default function ContractorReport() {
                 <div className="form-object-field">
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                            label="Completed since"
+                            label="From"
                             onChange={(date) => {
                                 setParams((prevState) => ({
                                     ...prevState,
@@ -111,7 +99,7 @@ export default function ContractorReport() {
                 <div className="form-object-field">
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                            label="Completed before"
+                            label="To"
                             onChange={(date) => {
                                 setParams((prevState) => ({
                                     ...prevState,
@@ -133,6 +121,12 @@ export default function ContractorReport() {
                             callBackendAPI(params).then((r) => {
                                 alerting(r.status)
                                 setAlertSeverity("success")
+                                setParams({
+                                    report_project: "",
+                                    contractor_project: "",
+                                    completed_since: new Date(),
+                                    completed_before: new Date(),
+                                });
                             }).catch((err) => {
                                 alerting(err.message)
                                 setAlertSeverity("error")
@@ -142,8 +136,8 @@ export default function ContractorReport() {
                     >
                         Submit
                     </Button>
-                    {alertContent ? displayAlert(alertContent, alertSeverity) : <></>}
                 </div>
+                {alertContent ? displayAlert(alertContent, alertSeverity) : <></>}
             </FormControl>
         </div>
     );

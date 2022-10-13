@@ -6,9 +6,6 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {Link} from "react-router-dom";
 
 const options = [
-    <Link to="/"
-          style={{textDecoration: 'none', color: 'black'}}
-    >Home</Link>,
     <Link to="/mass_tasks"
           style={{textDecoration: 'none', color: 'black'}}
     >Mass tasks</Link>,
