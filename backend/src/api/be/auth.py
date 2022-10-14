@@ -26,6 +26,15 @@ async def asana_authorization(
     )
 
 
+@asana_auth_router.get('/logout')
+async def asana_logout(
+    response: typedef.Response,
+):
+    response.delete_cookie('access_token')
+    response.delete_cookie('user')
+    return {'result': {'message': 'Successfully logged out'}}
+
+
 @asana_auth_router.get('/auth/user')
 async def asana_authorization_user(
     request: typedef.Request,

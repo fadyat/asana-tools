@@ -1,4 +1,4 @@
-import {Button, FormControl, TextField} from "@mui/material";
+import {Button, CircularProgress, FormControl, TextField} from "@mui/material";
 import React from "react";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
@@ -6,26 +6,30 @@ import {DatePicker} from "@mui/x-date-pickers";
 import "../../styles/Forms.css"
 import displayAlert from "../asana/Alerts";
 
-const callBackendAPI = async (request_body) => {
-    const apiEndpoint = process.env.REACT_APP_BACKEND_URI + "tasks/contractor/report";
+export default function ContractorReport() {
 
-    const response = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(request_body),
-    })
-    const response_body = await response.json();
-    if (response.status >= 400) {
-        throw new Error(response_body.error.message);
+    const callBackendAPI = async (request_body) => {
+        const apiEndpoint = process.env.REACT_APP_BACKEND_URI + "tasks/contractor/report";
+
+        setIsReloading(true)
+        await new Promise(r => setTimeout(r, 1000));
+        const response = await fetch(apiEndpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify(request_body),
+        })
+        const response_body = await response.json();
+        setIsReloading(false)
+        if (response.status >= 400) {
+            throw new Error(response_body.error.message);
+        }
+
+        return response_body.result;
     }
 
-    return response_body.result;
-}
-
-export default function ContractorReport() {
 
     const alerting = (content) => {
         setAlertContent(content)
@@ -37,6 +41,7 @@ export default function ContractorReport() {
 
     const [alertContent, setAlertContent] = React.useState(null);
     const [alertSeverity, setAlertSeverity] = React.useState("success");
+    const [isReloading, setIsReloading] = React.useState(false);
 
     const [params, setParams] = React.useState({
         report_project: "",
@@ -113,30 +118,41 @@ export default function ContractorReport() {
                         />
                     </LocalizationProvider>
                 </div>
-                <div className="form-object-field">
-                    <Button
-                        variant="contained"
-                        type="submit"
-                        onClick={() => {
-                            callBackendAPI(params).then((r) => {
-                                alerting(r.status)
-                                setAlertSeverity("success")
-                                setParams({
-                                    report_project: "",
-                                    contractor_project: "",
-                                    completed_since: new Date(),
-                                    completed_before: new Date(),
-                                });
-                            }).catch((err) => {
-                                alerting(err.message)
-                                setAlertSeverity("error")
-                            })
-                        }}
-                        className="form-object-field"
-                    >
-                        Submit
-                    </Button>
-                </div>
+                {isReloading ? (
+                    <div className="form-object-field" style={{
+                        alignItems: "center",
+                    }}>
+                        <CircularProgress
+                            color="secondary"
+                            size={30}
+                        />
+                    </div>
+                ) : (
+                    <div className="form-object-field">
+                        <Button
+                            variant="contained"
+                            type="submit"
+                            onClick={() => {
+                                callBackendAPI(params).then((r) => {
+                                    alerting(r.status)
+                                    setAlertSeverity("success")
+                                    setParams({
+                                        report_project: "",
+                                        contractor_project: "",
+                                        completed_since: new Date(),
+                                        completed_before: new Date(),
+                                    });
+                                }).catch((err) => {
+                                    alerting(err.message)
+                                    setAlertSeverity("error")
+                                })
+                            }}
+                            className="form-object-field"
+                        >
+                            Submit
+                        </Button>
+                    </div>
+                )}
                 {alertContent ? displayAlert(alertContent, alertSeverity) : <></>}
             </FormControl>
         </div>

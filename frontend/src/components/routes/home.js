@@ -10,12 +10,16 @@ export default function Home() {
                 <h1>
                     Hello, {jwt_decode(Cookies.get('user')).name}
                 </h1>
-                <img src="/hello.png" alt="hello"/>
+                <img src="/hello.webp" alt="hello" style={{
+                    width: "40%",
+                }}/>
             </div>
         ) : (
             <div>
                 <h1>Not logged in</h1>
-                <img src="/login.png" alt="login"/>
+                <img src="/login.webp" alt="login" style={{
+                    width: "40%",
+                }}/>
             </div>
         );
     return <div className={"isLogged"}>
