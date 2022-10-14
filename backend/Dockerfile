@@ -1,16 +1,15 @@
-FROM python:3.10-slim-buster
+FROM python:3.10-slim-buster AS base
+ENV PYROOT /pyroot
+ENV PYTHONUSERBASE $PYROOT
 
-ENV LC_ALL=C.UTF-8 \
-    LANG=C.UTF-8
 
+FROM base AS builder
 RUN pip install pipenv
+COPY Pipfile* ./
+RUN PIP_USER=1 PIP_IGNORE_INSTALLED=1 pipenv install --system --deploy --ignore-pipfile
 
-WORKDIR /opt/app
-ADD Pipfile /opt/app/Pipfile
-ADD Pipfile.lock /opt/app/Pipfile.lock
-RUN PIP_USER=1 \
-    PIP_IGNORE_INSTALLED=1 \
-    pipenv install --system --deploy --ignore-pipfile
 
-ADD . /opt/app
-RUN find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
+FROM base
+COPY --from=builder $PYROOT/lib/ $PYROOT/lib/
+WORKDIR /opt/appls
+COPY ./ ./
