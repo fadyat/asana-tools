@@ -4,7 +4,6 @@ from fastapi import APIRouter
 from src import typedef
 from src.clients.asana.auth import AsyncAsanaAuthClient
 from src.utils.auth import (
-    create_auth_params,
     create_callback_params,
     create_token,
     decode_token,
@@ -15,15 +14,6 @@ asana_auth_router = APIRouter(
     prefix='/api/v1',
     tags=['asana_auth'],
 )
-
-
-@asana_auth_router.get('/auth')
-async def asana_authorization(
-    request: typedef.Request,
-):
-    return typedef.RedirectResponse(
-        url=f'{request.app.asana_config.asana_auth_endpoint}?{create_auth_params()}',
-    )
 
 
 @asana_auth_router.get('/logout')

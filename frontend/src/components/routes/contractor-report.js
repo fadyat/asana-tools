@@ -10,9 +10,9 @@ export default function ContractorReport() {
 
     const callBackendAPI = async (request_body) => {
         const apiEndpoint = process.env.REACT_APP_BACKEND_URI + "tasks/contractor/report";
-
         setIsReloading(true)
         await new Promise(r => setTimeout(r, 1000));
+
         const response = await fetch(apiEndpoint, {
             method: 'POST',
             headers: {
@@ -21,6 +21,7 @@ export default function ContractorReport() {
             credentials: 'include',
             body: JSON.stringify(request_body),
         })
+
         const response_body = await response.json();
         setIsReloading(false)
         if (response.status >= 400) {
@@ -58,6 +59,7 @@ export default function ContractorReport() {
         }));
     }
 
+    // noinspection JSValidateTypes
     return (
         <div className="form-object">
             <FormControl className="form-object-formcontrol">
@@ -88,6 +90,7 @@ export default function ContractorReport() {
                         <DatePicker
                             label="From"
                             onChange={(date) => {
+                                // noinspection JSCheckFunctionSignatures
                                 setParams((prevState) => ({
                                     ...prevState,
                                     completed_since: date
@@ -106,6 +109,7 @@ export default function ContractorReport() {
                         <DatePicker
                             label="To"
                             onChange={(date) => {
+                                // noinspection JSCheckFunctionSignatures
                                 setParams((prevState) => ({
                                     ...prevState,
                                     completed_before: date

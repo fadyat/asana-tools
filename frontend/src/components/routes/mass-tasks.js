@@ -14,7 +14,6 @@ export default function MassTasks() {
         }
 
         setIsReloading(true)
-        // sleep
         await new Promise(r => setTimeout(r, 1000));
         const response = await fetch(apiEndpoint, {
             method: 'POST', credentials: 'include', body: data
@@ -75,8 +74,10 @@ export default function MassTasks() {
                             shrink: true,
                         }}
                         onChange={(event) => {
+                            // noinspection JSCheckFunctionSignatures
                             setProps((prevState) => ({
-                                ...prevState, uploaded_file: event.target.files[0]
+                                ...prevState,
+                                uploaded_file: event.target.files[0]
                             }));
                         }}
                     />

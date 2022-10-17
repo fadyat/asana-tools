@@ -8,13 +8,15 @@ const Main = () => {
     const user = Cookies.get('user');
     return (
         <Routes>
-            <Route path="/" element={<Home/>}></Route>
-            <Route path="/contractor" element={
-                user ? <ContractorReport/> : <Navigate to="/"/>
-            }></Route>
-            <Route path="/mass_tasks" element={
-                user ? <MassTasks/> : <Navigate to="/"/>
-            }></Route>
+            <Route path="/"
+                   element={<Home/>}
+            ></Route>
+            <Route path="/contractor"
+                   element={user ? <ContractorReport/> : <Navigate to="/"/>}
+            ></Route>
+            <Route path="/mass_tasks"
+                   element={user ? <MassTasks/> : <Navigate to="/"/>}
+            ></Route>
 
         </Routes>
     );
