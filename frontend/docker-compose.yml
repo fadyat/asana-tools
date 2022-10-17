@@ -3,6 +3,7 @@ version: '3.7'
 services:
   asana-tools-frontend:
     container_name: asana-tools-frontend
+    image: asana-tools-frontend
     build:
       context: .
       dockerfile: Dockerfile

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -6,13 +6,10 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {Link} from "react-router-dom";
 
 const options = [
-    <Link to="/mass_tasks"
-          style={{textDecoration: 'none', color: 'black'}}
-    >Mass tasks</Link>,
-    <Link to="/contractor"
-          style={{textDecoration: 'none', color: 'black'}}
-    >Contractor report</Link>
+    {"to": "/mass_tasks", "key": "mass_tasks", "value": "Mass tasks"},
+    {"to": "/contractor", "key": "contractor", "value": "Contractor report"},
 ];
+
 
 const ITEM_HEIGHT = 48;
 
@@ -26,6 +23,7 @@ export default function AsanaMenu() {
         setAnchorEl(null);
     };
 
+    // noinspection JSValidateTypes
     return (
         <div>
             <IconButton
@@ -51,14 +49,15 @@ export default function AsanaMenu() {
                     },
                 }}
             >
-                {options.map((option) => (
-                    <MenuItem
-                        key={option.key}
-                        onClick={handleClose}
-                    >
-                        {option}
-                    </MenuItem>
-                ))}
+                {
+                    options.map((option) => (
+                        <MenuItem key={option.key} onClick={handleClose}>
+                            <Link to={option.to} style={{textDecoration: 'none', color: 'black'}}>
+                                {option.value}
+                            </Link>
+                        </MenuItem>
+                    ))
+                }
             </Menu>
         </div>
     );

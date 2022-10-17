@@ -1,3 +1,7 @@
 __pycache__
 venv
 .idea
+Makefile
+Dockerfile
+docker-compose.yml
+.gitignore

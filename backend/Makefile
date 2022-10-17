@@ -1,4 +1,4 @@
-c := api
+c := asana-tools-backend
 container_id := $(shell docker ps | grep "${c}" | awk '{ print $$1 }')
 
 up:

@@ -4,7 +4,6 @@ from fastapi import APIRouter
 from src import typedef
 from src.clients.asana.auth import AsyncAsanaAuthClient
 from src.utils.auth import (
-    create_auth_params,
     create_callback_params,
     create_token,
     decode_token,
@@ -17,13 +16,13 @@ asana_auth_router = APIRouter(
 )
 
 
-@asana_auth_router.get('/auth')
-async def asana_authorization(
-    request: typedef.Request,
+@asana_auth_router.get('/logout')
+async def asana_logout(
+    response: typedef.Response,
 ):
-    return typedef.RedirectResponse(
-        url=f'{request.app.asana_config.asana_auth_endpoint}?{create_auth_params()}',
-    )
+    response.delete_cookie('access_token')
+    response.delete_cookie('user')
+    return {'result': {'message': 'Successfully logged out'}}
 
 
 @asana_auth_router.get('/auth/user')

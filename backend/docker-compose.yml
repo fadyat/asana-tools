@@ -7,9 +7,9 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: asana-tools-backend
+    image: asana-tools-backend
     ports:
       - '80:80'
     volumes:
       - .:/opt/app
     command: [ 'python', '/opt/app/cli.py', 'api' ]
-    working_dir: '/opt/app'
