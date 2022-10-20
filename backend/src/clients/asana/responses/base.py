@@ -33,6 +33,8 @@ def catch_token_error(f):
             message = errors[0].get('message')
             raise AsanaApiError(message)
         elif error := response.get('error'):
+            message = response.get('error_description')
+            error += f'\n{message}'
             raise AsanaApiError(error)
 
         return response
