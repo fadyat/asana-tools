@@ -1,17 +1,13 @@
-import React from "react";
-import Cookies from "js-cookie";
+import React, {useContext} from "react";
 import {AppBar, Box, Toolbar, Typography} from "@mui/material";
 import {LoginButton, LogoutButton} from "./auth/log-buttons";
 import AsanaMenu from "./asana/Menu";
-
-const renderLoginOrLogoutButton = () => {
-    return Cookies.get('user') ?
-        <LogoutButton/> :
-        <LoginButton/>
-}
+import {UserContext} from "./context";
 
 
 export default function Header() {
+    const {user} = useContext(UserContext);
+
     return (
         <Box sx={{flexGrow: 1}}>
             <AppBar position="static">
@@ -24,7 +20,7 @@ export default function Header() {
                     >
                         Asana scripts
                     </Typography>
-                    {renderLoginOrLogoutButton()}
+                    {user ? <LogoutButton/> : <LoginButton/>}
                 </Toolbar>
             </AppBar>
         </Box>

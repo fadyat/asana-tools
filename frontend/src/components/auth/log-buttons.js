@@ -1,40 +1,42 @@
 import {Button} from "@mui/material";
-import React from "react";
+import React, {useCallback, useContext} from "react";
+import {UserContext} from "../context";
+import {history} from "../../config/routes";
 
+function LogoutButton() {
+    const {_, setUser} = useContext(UserContext);
 
-class LogoutButton extends React.Component {
-
-    async logout() {
+    const handleLogout = useCallback(async () => {
         const apiEndpoint = process.env.REACT_APP_BACKEND_URI + "logout"
-        const response = await fetch(
-            apiEndpoint, {
-                method: 'GET',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
+        const response = await fetch(apiEndpoint, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
         const body = await response.json();
         if (response.status !== 200) {
             throw Error(body.message)
         }
-        window.location = "/"
-    }
 
-    render() {
-        return (
-            <Button variant="contained"
-                    onClick={this.logout}
-            >
-                Logout
-            </Button>
-        );
-    }
+        setUser(null)
+        history.push('/')
+    }, [])
+
+    return (
+        <Button variant="contained"
+                onClick={handleLogout}
+        >
+            Logout
+        </Button>
+    );
 }
 
-class LoginButton extends React.Component {
+function LoginButton() {
 
-    async callAsanaOauth2() {
+    const openAsanaLoginPage = useCallback(async () => {
         let asanaOauth2Endpoint = process.env.REACT_APP_ASANA_AUTHORIZATION_URI || "https://app.asana.com/-/oauth_authorize";
         const queryParams = new URLSearchParams({
             client_id: process.env.REACT_APP_ASANA_CLIENT_ID,
@@ -43,17 +45,15 @@ class LoginButton extends React.Component {
         })
 
         window.location = `${asanaOauth2Endpoint}?${queryParams.toString()}`
-    }
+    }, [])
 
-    render() {
-        return (
-            <Button variant="contained"
-                    onClick={this.callAsanaOauth2}
-            >
-                Login
-            </Button>
-        );
-    }
+    return (
+        <Button variant="contained"
+                onClick={openAsanaLoginPage}
+        >
+            Login
+        </Button>
+    );
 }
 
 export {LogoutButton, LoginButton};
