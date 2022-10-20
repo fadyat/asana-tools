@@ -1,28 +1,35 @@
-import React from "react";
+import React, {useContext} from "react";
 import "../../styles/HomePage.css"
-import Cookies from "js-cookie";
-import jwt_decode from "jwt-decode";
+import {UserContext} from "../context";
+import {useUser} from "../../utils/hooks";
 
-export default function Home() {
-    const isLogged = Cookies.get('user') ?
-        (
+function HelloPage() {
+    const {user} = useContext(UserContext);
+
+    return (
+        <div className="isLogged">
             <div>
-                <h1>
-                    Hello, {jwt_decode(Cookies.get('user')).name}
-                </h1>
+                <h1>Hello, {user}</h1>
                 <img src="/hello.webp" alt="hello" style={{
                     width: "40%",
                 }}/>
             </div>
-        ) : (
+        </div>
+    )
+}
+
+function LoginPage() {
+    return (
+        <div className="isLogged">
             <div>
                 <h1>Not logged in</h1>
                 <img src="/login.webp" alt="login" style={{
                     width: "40%",
                 }}/>
             </div>
-        );
-    return <div className={"isLogged"}>
-        {isLogged}
-    </div>
+        </div>
+    )
 }
+
+
+export {LoginPage, HelloPage}

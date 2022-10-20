@@ -1,12 +1,12 @@
 import jwt
 from fastapi import APIRouter
 
-from src import typedef
+from src import typedef, settings
 from src.clients.asana.auth import AsyncAsanaAuthClient
 from src.utils.auth import (
     create_callback_params,
     create_token,
-    decode_token,
+    decode_token, create_auth_params,
 )
 from src.utils.http import create_cookie
 
@@ -16,17 +16,26 @@ asana_auth_router = APIRouter(
 )
 
 
-@asana_auth_router.get('/logout')
-async def asana_logout(
-    response: typedef.Response,
-):
+@asana_auth_router.post('/logout')
+def asana_logout():
+    response = typedef.JSONResponse(
+        status_code=200,
+        content={'result': {'message': 'Successfully logged out'}}
+    )
     response.delete_cookie('access_token')
     response.delete_cookie('user')
-    return {'result': {'message': 'Successfully logged out'}}
+    return response
 
 
-@asana_auth_router.get('/auth/user')
-async def asana_authorization_user(
+@asana_auth_router.get('/auth')
+def asana_auth():
+    return typedef.RedirectResponse(
+        url=f'{settings.ASANA_AUTH_ENDPOINT}?{create_auth_params()}',
+    )
+
+
+@asana_auth_router.get('/me')
+def asana_authorization_user(
     request: typedef.Request,
 ):
     try:
@@ -36,7 +45,10 @@ async def asana_authorization_user(
         jwt.exceptions.ExpiredSignatureError,
         jwt.exceptions.PyJWTError,
     ):
-        return typedef.Response('Unauthorized', 401)
+        return typedef.JSONResponse(
+            status_code=401,
+            content={'error': 'Unauthorized'},
+        )
 
     return decoded
 
@@ -44,13 +56,16 @@ async def asana_authorization_user(
 @asana_auth_router.get('/callback')
 async def asana_authorization_callback(
     request: typedef.Request,
-    response: typedef.Response,
     code: str,
 ):
     async with AsyncAsanaAuthClient(
         api_endpoint=request.app.asana_config.asana_token_endpoint,
     ) as client:
         token_response = await client.get_access_token(**create_callback_params(code))
+
+    response = typedef.RedirectResponse(
+        url=request.headers.get('Referer'),
+    )
 
     # setting access token cookie for making requests to asana api
     response.set_cookie(
@@ -79,11 +94,4 @@ async def asana_authorization_callback(
         )
     )
 
-    # if it was called from frontend redirect back
-    if refer := request.headers.get('Referer'):
-        return typedef.RedirectResponse(
-            url=refer,
-            headers=response.headers,
-        )
-
-    return token_response
+    return response

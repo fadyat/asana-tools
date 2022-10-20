@@ -7,7 +7,7 @@ def create_cookie(
     max_age: int | str | None = 60 * 60 * 24 * 7,
     http_only: bool = True,
     secure: bool = True,
-    same_site: str = "Strict",
+    same_site: str = 'none',
 ) -> typing.Mapping:
     return {
         "key": cookie_name,
