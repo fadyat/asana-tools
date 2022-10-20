@@ -39,7 +39,7 @@ This is a collection of tools for working with Asana.
 
   ```dotenv
   REACT_APP_BACKEND_URI=<your base backend uri> // http://localhost:80/api/v1/
-  REACT_APP_BACKEND_URI_REDIRECT_ENPOINT=<public redirect endpoint> // http://localhost:80/api/v1/callback
+  REACT_APP_BACKEND_URI_REDIRECT_ENDPOINT=<public redirect endpoint> // http://localhost:80/api/v1/callback
   REACT_APP_ASANA_CLIENT_ID=<your asana client id>
   ```
 

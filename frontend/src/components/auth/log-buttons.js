@@ -38,7 +38,7 @@ class LoginButton extends React.Component {
         let asanaOauth2Endpoint = process.env.REACT_APP_ASANA_AUTHORIZATION_URI || "https://app.asana.com/-/oauth_authorize";
         const queryParams = new URLSearchParams({
             client_id: process.env.REACT_APP_ASANA_CLIENT_ID,
-            redirect_uri: process.env.REACT_APP_BACKEND_URI_REDIRECT_ENPOINT,
+            redirect_uri: process.env.REACT_APP_BACKEND_URI_REDIRECT_ENDPOINT,
             response_type: "code",
         })
 
