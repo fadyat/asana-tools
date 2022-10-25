@@ -1,6 +1,6 @@
 import Header from "../components/header";
 import AppRoutes from "./routes";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import "../styles/App.css";
 import {UserContext} from "../components/context";
 

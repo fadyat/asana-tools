@@ -4,7 +4,7 @@ import {UserContext} from "../context";
 import {history} from "../../config/routes";
 
 function LogoutButton() {
-    const {_, setUser} = useContext(UserContext);
+    const {setUser} = useContext(UserContext);
 
     const handleLogout = useCallback(async () => {
         const apiEndpoint = process.env.REACT_APP_BACKEND_URI + "logout"
@@ -23,7 +23,7 @@ function LogoutButton() {
 
         setUser(null)
         history.push('/')
-    }, [])
+    }, [setUser])
 
     return (
         <Button variant="contained"
