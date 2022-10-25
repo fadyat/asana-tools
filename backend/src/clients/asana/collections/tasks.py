@@ -1,7 +1,7 @@
 import typing
 
 from src.clients.asana.collections.base import AsyncAsanaCollection
-from src.entities import AsanaTaskBasicObject
+from src.entities import AsanaTaskRequest, AsanaTaskResponse
 
 __all__ = ('AsyncAsanaTasksCollection',)
 
@@ -12,7 +12,7 @@ class AsyncAsanaTasksCollection(AsyncAsanaCollection):
         task_gid: str,
         opt_fields: typing.Sequence[str] | None = None,
         opt_pretty: bool | None = None,
-    ):
+    ) -> AsanaTaskResponse:
         """https://developers.asana.com/docs/get-a-task"""
 
         params = {
@@ -20,10 +20,11 @@ class AsyncAsanaTasksCollection(AsyncAsanaCollection):
             'opt_pretty': opt_pretty,
         }
 
-        return await self._client.get(
+        response = await self._client.get(
             endpoint=f'tasks/{task_gid}',
             params=params,
         )
+        return AsanaTaskResponse(**response)
 
     async def get_tasks(
         self,
@@ -37,7 +38,7 @@ class AsyncAsanaTasksCollection(AsyncAsanaCollection):
         offset: int | None = None,
         opt_pretty: bool | None = None,
         opt_fields: typing.Sequence[str] | None = None,
-    ):
+    ) -> typing.Sequence[AsanaTaskResponse]:
         """https://developers.asana.com/docs/get-multiple-tasks"""
 
         params = {
@@ -53,46 +54,51 @@ class AsyncAsanaTasksCollection(AsyncAsanaCollection):
             'opt_fields': opt_fields,
         }
 
-        return await self._client.get(
+        response = await self._client.get(
             endpoint='tasks',
             params=params,
         )
 
+        return [AsanaTaskResponse(**task.as_dict()) for task in response]
+
     async def create_task(
         self,
-        asana_task_basic_object: AsanaTaskBasicObject,
-    ):
+        asana_task_basic_object: AsanaTaskRequest,
+    ) -> AsanaTaskResponse:
         """https://developers.asana.com/docs/create-a-task"""
 
-        body = {"data": asana_task_basic_object.asdict()}
+        body = {"data": asana_task_basic_object.dict()}
 
-        return await self._client.post(
+        response = await self._client.post(
             endpoint='tasks',
             body=body,
         )
 
+        return AsanaTaskResponse(**response)
+
     async def create_subtask(
         self,
         parent_task_gid: str,
-        asana_task_basic_object: AsanaTaskBasicObject,
-    ):
+        asana_task_basic_object: AsanaTaskRequest,
+    ) -> AsanaTaskResponse:
         """https://developers.asana.com/docs/create-a-subtask"""
 
-        body = {"data": asana_task_basic_object.asdict()}
+        body = {"data": asana_task_basic_object.dict()}
 
-        return await self._client.post(
+        response = await self._client.post(
             endpoint=f'tasks/{parent_task_gid}/subtasks',
             body=body,
         )
+        return AsanaTaskResponse(**response)
 
     async def update_task(
         self,
         task_gid: str,
-        asana_task_basic_object: AsanaTaskBasicObject,
+        asana_task_basic_object: AsanaTaskRequest,
     ):
         """https://developers.asana.com/docs/update-a-task"""
 
-        body = {"data": asana_task_basic_object.asdict()}
+        body = {"data": asana_task_basic_object.dict()}
 
         return await self._client.put(
             endpoint=f'tasks/{task_gid}',

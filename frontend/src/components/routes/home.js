@@ -1,7 +1,6 @@
 import React, {useContext} from "react";
 import "../../styles/HomePage.css"
 import {UserContext} from "../context";
-import {useUser} from "../../utils/hooks";
 
 function HelloPage() {
     const {user} = useContext(UserContext);

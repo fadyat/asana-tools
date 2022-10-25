@@ -1,6 +1,7 @@
-import {Button, CircularProgress, FormControl, TextField} from "@mui/material";
+import {Alert, Button, CircularProgress, FormControl, TextField} from "@mui/material";
 import React from "react";
 import "../../styles/Forms.css"
+import "../../styles/Responses.css"
 import displayAlert from "../asana/Alerts";
 
 
@@ -14,6 +15,7 @@ export default function MassTasks() {
         }
 
         setIsReloading(true)
+        setBackendResponse(null);
         await new Promise(r => setTimeout(r, 1000));
         const response = await fetch(apiEndpoint, {
             method: 'POST', credentials: 'include', body: data
@@ -25,7 +27,7 @@ export default function MassTasks() {
             throw new Error(response_body.error.message);
         }
 
-        return response_body.result;
+        return response_body;
     }
 
     const alerting = (content) => {
@@ -39,6 +41,7 @@ export default function MassTasks() {
     const [alertContent, setAlertContent] = React.useState(null);
     const [alertSeverity, setAlertSeverity] = React.useState("success");
     const [isReloading, setIsReloading] = React.useState(false);
+    const [backendResponse, setBackendResponse] = React.useState(null);
 
     const [props, setProps] = React.useState({
         asana_template_url: "", uploaded_file: null,
@@ -100,8 +103,7 @@ export default function MassTasks() {
                                     ["asana_template_url", props.asana_template_url],
                                     ["uploaded_file", props.uploaded_file]
                                 ]).then((r) => {
-                                    alerting(r.status)
-                                    setAlertSeverity("success")
+                                    setBackendResponse(r)
                                 }).catch((err) => {
                                     alerting(err.message)
                                     setAlertSeverity("error")
@@ -113,6 +115,51 @@ export default function MassTasks() {
                     </div>
                 )}
                 {alertContent ? displayAlert(alertContent, alertSeverity) : <></>}
+                {backendResponse ? (
+                    <div className="form-object-field">
+                        {
+                            backendResponse.created_tasks.length > 0 ? (
+                                <div className="form-object-field">
+                                    <Alert severity="success"
+                                           variant="outlined"
+                                    >
+                                        Created tasks: {backendResponse.created_tasks.length}
+                                    </Alert>
+                                    <div className="response-object-field">
+                                        <div className="response-object-field-value">
+                                            {backendResponse.created_tasks.map((task) => (
+                                                <div className="response-object-field-value-item">
+                                                    <a href={task.permalink_url} target="_blank">{task.name}</a>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : <></>
+
+                        }
+                        {
+                            backendResponse.failed_tasks.length > 0 ? (
+                                <div className="form-object-field">
+                                    <Alert severity="error"
+                                           variant="outlined"
+                                    >
+                                        Failed tasks: {backendResponse.failed_tasks.length}
+                                    </Alert>
+                                    <div className="response-object-field">
+                                        <div className="response-object-field-value">
+                                            {backendResponse.failed_tasks.map(task_response => (
+                                                <div className="response-object-field-value-item">
+                                                    {task_response.task.name} - {task_response.task.assignee} - {task_response.error}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : <></>
+                        }
+                    </div>
+                ) : (<></>)}
             </FormControl>
         </div>
     );

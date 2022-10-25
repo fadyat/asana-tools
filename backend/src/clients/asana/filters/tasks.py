@@ -1,5 +1,6 @@
 import typing
 
+from src.entities import AsanaTaskResponse
 from src.errors import AsanaInvalidParameterError
 
 __all__ = (
@@ -19,13 +20,17 @@ def get_task_gid(
 
 
 def filter_tasks_by_complete_status(
-    tasks: typing.Sequence[typing.Mapping],
-) -> typing.Sequence[typing.Mapping]:
-    return [task for task in tasks if task.get('completed')]
+    tasks: typing.Sequence[AsanaTaskResponse],
+) -> typing.Sequence[AsanaTaskResponse]:
+    return [task for task in tasks if task.completed]
 
 
 def filter_tasks_by_completed_before(
-    tasks: typing.Sequence[typing.Mapping],
+    tasks: typing.Sequence[AsanaTaskResponse],
     completed_before: str,
-) -> typing.Sequence[typing.Mapping]:
-    return [task for task in tasks if task.get('completed_at') < completed_before]
+) -> typing.Sequence[AsanaTaskResponse]:
+    return [
+        task
+        for task in tasks
+        if task.completed_at < completed_before
+    ]
