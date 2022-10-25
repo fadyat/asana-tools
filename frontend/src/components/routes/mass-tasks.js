@@ -41,25 +41,7 @@ export default function MassTasks() {
     const [alertContent, setAlertContent] = React.useState(null);
     const [alertSeverity, setAlertSeverity] = React.useState("success");
     const [isReloading, setIsReloading] = React.useState(false);
-    const [backendResponse, setBackendResponse] = React.useState({
-        "failed_tasks": [
-            {
-                "task": {
-                    "name": "Task 1",
-                    "assignee": "user1",
-                },
-                "error": "Error 1"
-            }
-        ],
-        "created_tasks": [
-            {
-                "name": "Task 1",
-                "assignee": "user1",
-                "id": "123456789",
-                "permalink_url": "https://app.asana.com/0/123456789/123456789"
-            }
-        ]
-    });
+    const [backendResponse, setBackendResponse] = React.useState(null);
 
     const [props, setProps] = React.useState({
         asana_template_url: "", uploaded_file: null,
