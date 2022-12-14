@@ -3,6 +3,7 @@ import React from "react";
 import "../../styles/Forms.css"
 import "../../styles/Responses.css"
 import displayAlert from "../asana/Alerts";
+import MassTasksDescription from "../description/mass-tasks";
 
 
 export default function MassTasks() {
@@ -24,6 +25,14 @@ export default function MassTasks() {
         setIsReloading(false)
         const response_body = await response.json();
         if (response.status >= 400) {
+            if (response.status === 401) {
+                throw new Error("You are not logged in. Please login and try again.");
+            }
+
+            if (response.status === 422) {
+                throw new Error("Is all the data correct?");
+            }
+
             throw new Error(response_body.error.message);
         }
 
@@ -161,6 +170,7 @@ export default function MassTasks() {
                     </div>
                 ) : (<></>)}
             </FormControl>
+            <MassTasksDescription/>
         </div>
     );
 }

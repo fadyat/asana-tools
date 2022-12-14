@@ -59,7 +59,7 @@ class AsyncAsanaTasksCollection(AsyncAsanaCollection):
             params=params,
         )
 
-        return [AsanaTaskResponse(**task.as_dict()) for task in response]
+        return [AsanaTaskResponse(**task) for task in response]
 
     async def create_task(
         self,

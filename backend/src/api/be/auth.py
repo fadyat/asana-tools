@@ -72,7 +72,7 @@ async def asana_authorization_callback(
         **create_cookie(
             cookie_name='access_token',
             value=f'Bearer {token_response.get("access_token")}',
-            max_age=token_response.get('expires_in'),
+            max_age=8 * 60 * 60,
         )
     )
 
@@ -90,7 +90,7 @@ async def asana_authorization_callback(
             cookie_name='user',
             value=create_token(token_response.get('data')),
             http_only=False,
-            max_age=token_response.get('expires_in'),
+            max_age=8 * 60 * 60,
         )
     )
 

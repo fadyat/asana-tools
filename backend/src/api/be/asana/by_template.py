@@ -21,6 +21,12 @@ async def create_tasks_by_template(
     asana_template_url: str = Form(...),
     uploaded_file: UploadFile = File(...),
 ):
+    if request.cookies.get('access_token') is None:
+        return typedef.JSONResponse(
+            status_code=401,
+            content={'error': {'message': 'Unauthorized'}},
+        )
+
     logs = request.app.logger
     task_gid = get_task_gid(asana_template_url)
     project_gid = get_project_gid(asana_template_url)
