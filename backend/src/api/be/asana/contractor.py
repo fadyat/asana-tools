@@ -56,6 +56,12 @@ async def report_completed_contractor_tasks(
     request: typedef.Request,
     model: ReportData,
 ):
+    if request.cookies.get('access_token') is None:
+        return typedef.JSONResponse(
+            status_code=401,
+            content={'error': {'message': 'Unauthorized'}},
+        )
+
     logs = request.app.logger
     report_project_gid = get_project_gid(model.report_project)
     asana_api_endpoint = request.app.asana_config.asana_api_endpoint
@@ -76,7 +82,7 @@ async def report_completed_contractor_tasks(
         },
     ) as client:
         agreement_project_members = await client.projects.get_members(
-            project_gid=report_project_gid,
+            project_gid=contractor_project_gid,
             opt_fields=('user.email', 'user.name'),
         )
 

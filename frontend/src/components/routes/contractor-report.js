@@ -1,10 +1,11 @@
-import {Button, CircularProgress, FormControl, TextField} from "@mui/material";
+import {Button, CircularProgress, Fab, FormControl, TextField} from "@mui/material";
 import React from "react";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {DatePicker} from "@mui/x-date-pickers";
 import "../../styles/Forms.css"
 import displayAlert from "../asana/Alerts";
+import ContractorPageDescription from "../description/contractor";
 
 export default function ContractorReport() {
 
@@ -25,6 +26,14 @@ export default function ContractorReport() {
         const response_body = await response.json();
         setIsReloading(false)
         if (response.status >= 400) {
+            if (response.status === 401) {
+                throw new Error("You are not logged in. Please login and try again.");
+            }
+
+            if (response.status === 422) {
+                throw new Error("Is all the data correct?");
+            }
+
             throw new Error(response_body.error.message);
         }
 
@@ -45,8 +54,8 @@ export default function ContractorReport() {
     const [isReloading, setIsReloading] = React.useState(false);
 
     const [params, setParams] = React.useState({
-        report_project: "",
-        contractor_project: "",
+        report_project: undefined,
+        contractor_project: undefined,
         completed_since: new Date(),
         completed_before: new Date(),
     });
@@ -141,8 +150,8 @@ export default function ContractorReport() {
                                     alerting(r.status)
                                     setAlertSeverity("success")
                                     setParams({
-                                        report_project: "",
-                                        contractor_project: "",
+                                        report_project: undefined,
+                                        contractor_project: undefined,
                                         completed_since: new Date(),
                                         completed_before: new Date(),
                                     });
@@ -159,6 +168,7 @@ export default function ContractorReport() {
                 )}
                 {alertContent ? displayAlert(alertContent, alertSeverity) : <></>}
             </FormControl>
+            <ContractorPageDescription/>
         </div>
     );
 }
