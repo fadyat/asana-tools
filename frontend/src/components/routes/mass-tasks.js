@@ -74,6 +74,7 @@ export default function MassTasks() {
                         variant="outlined"
                         value={props.asana_template_url}
                         onChange={handleChange}
+                        placeholder="https://app.asana.com/0/1"
                     />
                 </div>
                 <div className="form-object-field">

@@ -1,4 +1,4 @@
-import {Button, CircularProgress, Fab, FormControl, TextField} from "@mui/material";
+import {Button, CircularProgress, FormControl, TextField} from "@mui/material";
 import React from "react";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
@@ -13,6 +13,16 @@ export default function ContractorReport() {
         const apiEndpoint = process.env.REACT_APP_BACKEND_URI + "tasks/contractor/report";
         setIsReloading(true)
         await new Promise(r => setTimeout(r, 1000));
+
+        if (request_body.contractor_project === "") {
+            setIsReloading(false)
+            throw new Error("Please select a contractor project.");
+        }
+
+        if (request_body.report_project === "") {
+            setIsReloading(false)
+            throw new Error("Please select a report project.");
+        }
 
         const response = await fetch(apiEndpoint, {
             method: 'POST',
@@ -54,8 +64,8 @@ export default function ContractorReport() {
     const [isReloading, setIsReloading] = React.useState(false);
 
     const [params, setParams] = React.useState({
-        report_project: undefined,
-        contractor_project: undefined,
+        report_project: "",
+        contractor_project: "",
         completed_since: new Date(),
         completed_before: new Date(),
     });
@@ -81,6 +91,7 @@ export default function ContractorReport() {
                         name="contractor_project"
                         value={params.contractor_project}
                         onChange={handleChange}
+                        placeholder="https://app.asana.com/0/1"
                     />
                 </div>
                 <div className="form-object-field">
@@ -92,6 +103,7 @@ export default function ContractorReport() {
                         name="report_project"
                         value={params.report_project}
                         onChange={handleChange}
+                        placeholder="https://app.asana.com/0/1"
                     />
                 </div>
                 <div className="form-object-field">
@@ -150,10 +162,8 @@ export default function ContractorReport() {
                                     alerting(r.status)
                                     setAlertSeverity("success")
                                     setParams({
-                                        report_project: undefined,
-                                        contractor_project: undefined,
-                                        completed_since: new Date(),
-                                        completed_before: new Date(),
+                                        ...params,
+                                        contractor_project: ""
                                     });
                                 }).catch((err) => {
                                     alerting(err.message)
