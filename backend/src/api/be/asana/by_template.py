@@ -43,7 +43,13 @@ async def create_tasks_by_template(
             opt_fields=('user.email', 'user.name'),
         )
         dataframe = csv_file_to_dataframe(uploaded_file.file)
-        template_task = await client.tasks.get_task(task_gid)
+        template_task = await client.tasks.get_task(
+            task_gid,
+            opt_fields=(
+                'name', 'html_notes', 'followers', 'custom_fields',
+                'projects', 'due_at', 'due_on',
+            ),
+        )
         response = await create_multiple_tasks_by_template(
             dataframe=dataframe,
             asana_client=client,

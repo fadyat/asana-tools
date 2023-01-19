@@ -10,6 +10,7 @@ from src.errors import AsanaApiError
 class RenderingContent:
     name: str
     email: str
+    due_on: typing.Optional[str] = None
 
     def set_dynamic_fields(
         self,
@@ -19,7 +20,8 @@ class RenderingContent:
             if isinstance(value, str):
                 value = value.strip()
 
-            setattr(self, key, value)
+            if not getattr(self, key, None):
+                setattr(self, key, value)
 
         return self
 
@@ -79,8 +81,8 @@ class AsanaTaskRequest(pydantic.BaseModel):
     completed: bool | None = None
     completed_by: typing.Mapping[str, typing.Any] | None = None
     custom_fields: typing.Mapping[str, typing.Any] | None = None
-    due_at: str | None = None
-    due_on: str | None = None
+    due_at: str | None = None # ISO 8601
+    due_on: str | None = None # YYYY-MM-DD
     external: typing.Mapping[str, typing.Any] | None = None
     followers: typing.Sequence[str] | None = None
     html_notes: str | None = None

@@ -104,3 +104,17 @@ class AsyncAsanaTasksCollection(AsyncAsanaCollection):
             endpoint=f'tasks/{task_gid}',
             body=body,
         )
+
+    async def add_followers(
+        self,
+        task_gid: str,
+        followers: typing.Sequence[str],
+    ):
+        """https://developers.asana.com/docs/add-followers-to-a-task"""
+
+        body = {"data": {"followers": followers}}
+
+        return await self._client.post(
+            endpoint=f'tasks/{task_gid}/addFollowers',
+            body=body,
+        )

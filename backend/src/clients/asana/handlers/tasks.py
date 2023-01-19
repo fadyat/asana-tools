@@ -24,6 +24,7 @@ async def create_multiple_tasks_by_template(
         rendering_content = RenderingContent(
             name=get_assignee_name(members, row.email),
             email=row.email,
+            due_on=row.due_on,
         ).set_dynamic_fields(row.to_dict())
 
         if not rendering_content.name:
@@ -32,8 +33,9 @@ async def create_multiple_tasks_by_template(
         new_task = AsanaTaskRequest().from_response(
             template_task,
             name=customize_template(template_task.name, rendering_content),
-            notes=customize_template(template_task.notes, rendering_content),
+            html_notes=customize_template(template_task.html_notes, rendering_content),
             assignee=rendering_content.email,
+            due_on=rendering_content.due_on,
         )
 
         try:
@@ -42,8 +44,19 @@ async def create_multiple_tasks_by_template(
             logs.error(f'Error while creating task for {row.email}: {e}')
             response.add_failed_task(new_task, e)
             continue
-        else:
-            response.add_created_task(task)
-            logs.info('Task created for %s' % row.email)
+
+        response.add_created_task(task)
+        logs.info('Task created for %s' % row.email)
+
+        try:
+            task = await asana_client.tasks.add_followers(
+                task_gid=task.gid,
+                followers=[rendering_content.email, ],
+            )
+        except AsanaApiError as e:
+            logs.debug(f'Error while adding assignee as follower for {task.gid}: {e}')
+            continue
+
+        logs.info('Assignee added as follower for %s' % task.gid)
 
     return response

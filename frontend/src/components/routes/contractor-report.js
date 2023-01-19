@@ -10,6 +10,9 @@ import ContractorPageDescription from "../description/contractor";
 export default function ContractorReport() {
 
     const callBackendAPI = async (request_body) => {
+        request_body.completed_since = request_body.completed_since.toISOString().split('T')[0]
+        request_body.completed_before = request_body.completed_before.toISOString().split('T')[0]
+
         const apiEndpoint = process.env.REACT_APP_BACKEND_URI + "tasks/contractor/report";
         setIsReloading(true)
         await new Promise(r => setTimeout(r, 1000));
