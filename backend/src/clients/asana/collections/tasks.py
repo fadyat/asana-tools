@@ -73,7 +73,6 @@ class AsyncAsanaTasksCollection(AsyncAsanaCollection):
             endpoint='tasks',
             body=body,
         )
-
         return AsanaTaskResponse(**response)
 
     async def create_subtask(
@@ -100,21 +99,24 @@ class AsyncAsanaTasksCollection(AsyncAsanaCollection):
 
         body = {"data": asana_task_basic_object.dict()}
 
-        return await self._client.put(
+        response = await self._client.put(
             endpoint=f'tasks/{task_gid}',
             body=body,
         )
+        return AsanaTaskResponse(**response)
 
     async def add_followers(
         self,
         task_gid: str,
         followers: typing.Sequence[str],
-    ):
+    ) -> AsanaTaskResponse:
         """https://developers.asana.com/docs/add-followers-to-a-task"""
 
         body = {"data": {"followers": followers}}
 
-        return await self._client.post(
+        response = await self._client.post(
             endpoint=f'tasks/{task_gid}/addFollowers',
             body=body,
         )
+        return AsanaTaskResponse(**response)
+

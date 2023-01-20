@@ -11,6 +11,10 @@ __all__ = (
 )
 
 
+def is_link(text: str) -> bool:
+    return text.startswith('http')
+
+
 def customize_template(
     text: str,
     content: RenderingContent,
@@ -18,8 +22,13 @@ def customize_template(
     for match in re.findall(r'{{(.*?)}}', text, re.IGNORECASE | re.DOTALL):
         value = get_attributes(content, match)
 
-        if value is not None:
-            text = text.replace("".join(('{{', match, '}}')), value)
+        if value is None:
+            continue
+
+        if is_link(value):
+            value = f'<a href="{value}">{match}</a>'
+
+        text = text.replace("".join(('{{', match, '}}')), value)
 
     return text
 
