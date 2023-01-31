@@ -53,9 +53,9 @@ export default function Activity() {
     }
 
     const [params, setParams] = React.useState({
-        project: "https://app.asana.com/0/1202951998943680/list",
-        completed_since: "2023-01-18",
-        completed_before: "2023-01-31",
+        project: "",
+        completed_since: new Date(),
+        completed_before: new Date(),
     })
     const handleChange = (event) => {
         setParams((prevState) => ({
