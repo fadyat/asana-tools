@@ -8,6 +8,7 @@ import {Link} from "react-router-dom";
 const options = [
     {"to": "/mass_tasks", "key": "mass_tasks", "value": "Mass tasks"},
     {"to": "/contractor", "key": "contractor", "value": "Contractor report"},
+    {"to": "/activity", "key": "activity", "value": "Activity"}
 ];
 
 

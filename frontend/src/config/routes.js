@@ -6,6 +6,7 @@ import {useContext} from "react";
 import {UserContext} from "../components/context";
 import {createBrowserHistory} from "history";
 import {useUser} from "../utils/hooks";
+import Activity from "../components/routes/activity";
 
 
 export const history = createBrowserHistory();
@@ -26,6 +27,9 @@ const AppRoutes = () => {
             />
             <Route path="/mass_tasks"
                    element={user ? <MassTasks/> : <Navigate to="/"/>}
+            />
+            <Route path="/activity"
+                   element={user ? <Activity/> : <Navigate to="/"/>}
             />
             <Route path="*"
                    element={<Navigate to="/"/>}
