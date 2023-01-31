@@ -81,8 +81,8 @@ class AsanaTaskRequest(pydantic.BaseModel):
     completed: bool | None = None
     completed_by: typing.Mapping[str, typing.Any] | None = None
     custom_fields: typing.Mapping[str, typing.Any] | None = None
-    due_at: str | None = None # ISO 8601
-    due_on: str | None = None # YYYY-MM-DD
+    due_at: str | None = None  # ISO 8601
+    due_on: str | None = None  # YYYY-MM-DD
     external: typing.Mapping[str, typing.Any] | None = None
     followers: typing.Sequence[str] | None = None
     html_notes: str | None = None
@@ -175,3 +175,19 @@ class ByTemplateResponse(pydantic.BaseModel):
 
     def add_failed_task(self, task: AsanaTaskRequest, err: AsanaApiError):
         self.failed_tasks.append(FailedTask(task=task, error=err.message))
+
+
+class CreatorsModel(pydantic.BaseModel):
+    project: str
+    completed_since: str
+    completed_before: str
+
+
+class ActivityItem(pydantic.BaseModel):
+    user_email: str
+    actions_cnt: int
+
+
+class ActivityResponse(pydantic.BaseModel):
+    length: int
+    result: typing.List[ActivityItem]

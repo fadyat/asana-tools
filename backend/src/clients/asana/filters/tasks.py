@@ -7,6 +7,8 @@ __all__ = (
     'get_task_gid',
     'filter_tasks_by_complete_status',
     'filter_tasks_by_completed_before',
+    'get_incomplete_tasks',
+    'filter_tasks_by_modified_at',
 )
 
 
@@ -32,5 +34,22 @@ def filter_tasks_by_completed_before(
     return [
         task
         for task in tasks
-        if task.completed_at < completed_before
+        if task.completed_at <= completed_before
     ]
+
+
+def filter_tasks_by_modified_at(
+    tasks: typing.Sequence[AsanaTaskResponse],
+    modified_since: str,
+) -> typing.Sequence[AsanaTaskResponse]:
+    return [
+        task
+        for task in tasks
+        if modified_since <= task.modified_at
+    ]
+
+
+def get_incomplete_tasks(
+    tasks: typing.Sequence[AsanaTaskResponse],
+) -> typing.Sequence[AsanaTaskResponse]:
+    return [task for task in tasks if not task.completed]
