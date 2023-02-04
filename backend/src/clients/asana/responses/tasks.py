@@ -1,4 +1,4 @@
-__all__ = ('get_assignee_name',)
+__all__ = ('get_assignee_name', 'get_due_on',)
 
 
 def get_assignee_name(members, email) -> str | None:
@@ -8,3 +8,7 @@ def get_assignee_name(members, email) -> str | None:
             return user.get('name')
 
     return None
+
+
+def get_due_on(row) -> str | None:
+    return row.get('due_on') or None

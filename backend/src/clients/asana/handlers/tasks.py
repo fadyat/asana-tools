@@ -4,7 +4,7 @@ import pandas
 
 from src import typedef
 from src.clients.asana.client import AsyncAsanaClient
-from src.clients.asana.responses.tasks import get_assignee_name
+from src.clients.asana.responses.tasks import get_assignee_name, get_due_on
 from src.entities import RenderingContent, AsanaTaskRequest, AsanaTaskResponse, ByTemplateResponse
 from src.errors import AsanaApiError
 from src.render import customize_template
@@ -24,7 +24,7 @@ async def create_multiple_tasks_by_template(
         rendering_content = RenderingContent(
             name=get_assignee_name(members, row.email),
             email=row.email,
-            due_on=row.due_on,
+            due_on=get_due_on(row),
         ).set_dynamic_fields(row.to_dict())
 
         if not rendering_content.name:
