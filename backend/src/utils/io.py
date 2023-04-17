@@ -11,6 +11,6 @@ def csv_file_to_dataframe(
     file: str | BinaryIO,
     separator: str = settings.CSV_SEPERATOR,
 ):
-    dataframe = pandas.read_csv(file, sep=separator)
+    dataframe = pandas.read_csv(file, sep=separator, dtype=str)
     dataframe.columns = dataframe.columns.str.lower().str.strip()
     return dataframe.where(pandas.notnull(dataframe), None)
