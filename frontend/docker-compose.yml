@@ -2,13 +2,10 @@ version: '3.7'
 
 services:
   asana-tools-frontend:
-    container_name: asana-tools-frontend
-    image: asana-tools-frontend
     build:
       context: .
       dockerfile: Dockerfile
     volumes:
       - '.:/app'
-      - '/app/node_modules'
     ports:
-      - "3000:3000"
+      - "3000:80"

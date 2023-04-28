@@ -12,6 +12,7 @@ const handleUnauthorized = (response) => {
     if (response.status === 401) {
         history.push('/')
     }
+
     return response
 }
 
