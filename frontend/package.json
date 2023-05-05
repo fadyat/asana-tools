@@ -23,7 +23,8 @@
   },
   "scripts": {
     "start": "env-cmd -f .env react-scripts start",
-    "build": "react-scripts build"
+    "build": "react-scripts build",
+    "build-prod": "NODE_ENV=production react-scripts build"
   },
   "browserslist": {
     "production": [
