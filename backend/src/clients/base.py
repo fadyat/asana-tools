@@ -116,6 +116,7 @@ class HttpClient:
             headers=self.headers,
             params=params,
             data=body,
+            ssl=False,
         )
 
         # todo: specify response code for handling errors
