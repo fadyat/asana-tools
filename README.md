@@ -38,6 +38,7 @@ This is a collection of tools for working with Asana.
 - Make `.env` file with the following variables:
 
   ```dotenv
+  # Omit all '/' at the end of the url, example: http://localhost:80 
   REACT_APP_ASANA_TOOLS_HOST=<your backend host>
   REACT_APP_HELPSHIFT_ALERTS_HOST=<your helpshift alerts host>
   
