@@ -38,9 +38,13 @@ This is a collection of tools for working with Asana.
 - Make `.env` file with the following variables:
 
   ```dotenv
-  REACT_APP_BACKEND_URI=<your base backend uri> // http://localhost:80/api/v1/
-  REACT_APP_BACKEND_URI_REDIRECT_ENDPOINT=<public redirect endpoint> // http://localhost:80/api/v1/callback
-  REACT_APP_ASANA_CLIENT_ID=<your asana client id>
+  # Omit all '/' at the end of the url, example: http://localhost:80 
+  REACT_APP_ASANA_TOOLS_HOST=<your backend host>
+  REACT_APP_HELPSHIFT_ALERTS_HOST=<your helpshift alerts host>
+  
+  # It's not secure to store the api key in the frontend, but it's a temporary solution
+  REACT_APP_HELPSHIFT_API_KEY=<your helpshift api key>
+  REACT_APP_VERSION=<your version> 
   ```
 
 - Build and run container:

@@ -1,12 +1,12 @@
-import jwt
 from fastapi import APIRouter
 
 from src import typedef, settings
 from src.clients.asana.auth import AsyncAsanaAuthClient
+from src.clients.asana.client import AsyncAsanaClient
 from src.utils.auth import (
     create_callback_params,
     create_token,
-    decode_token, create_auth_params,
+    create_auth_params,
 )
 from src.utils.http import create_cookie
 
@@ -34,23 +34,29 @@ def asana_auth():
     )
 
 
-@asana_auth_router.get('/me')
-def asana_authorization_user(
+@asana_auth_router.get('/users/me')
+async def asana_authorization_user(
     request: typedef.Request,
 ):
-    try:
-        decoded = decode_token(request.cookies.get('user'))
-    except (
-        jwt.exceptions.InvalidSignatureError,
-        jwt.exceptions.ExpiredSignatureError,
-        jwt.exceptions.PyJWTError,
-    ):
+    if request.cookies.get('access_token') is None:
         return typedef.JSONResponse(
             status_code=401,
-            content={'error': 'Unauthorized'},
+            content={'error': {'message': 'Unauthorized'}},
         )
 
-    return decoded
+    async with AsyncAsanaClient(
+        asana_api_endpoint=request.app.asana_config.asana_api_endpoint,
+        headers={
+            'Authorization': request.cookies.get('access_token'),
+            'Content-Type': 'application/json',
+        },
+    ) as client:
+        user = await client.users.me()
+
+    return typedef.JSONResponse(
+        status_code=200,
+        content={'result': {'user': user}},
+    )
 
 
 @asana_auth_router.get('/callback')
@@ -63,16 +69,21 @@ async def asana_authorization_callback(
     ) as client:
         token_response = await client.get_access_token(**create_callback_params(code))
 
-    response = typedef.RedirectResponse(
-        url=request.headers.get('Referer'),
-    )
+    referer = request.headers.get('Referer')
+    response = typedef.RedirectResponse(url=referer)
+
+    if referer is None:
+        response = typedef.JSONResponse(
+            status_code=200,
+            content={'result': {'message': 'Successfully logged in'}}
+        )
 
     # setting access token cookie for making requests to asana api
     response.set_cookie(
         **create_cookie(
             cookie_name='access_token',
             value=f'Bearer {token_response.get("access_token")}',
-            max_age=8 * 60 * 60,
+            max_age=token_response.get('expires_in'),
         )
     )
 
@@ -90,7 +101,7 @@ async def asana_authorization_callback(
             cookie_name='user',
             value=create_token(token_response.get('data')),
             http_only=False,
-            max_age=8 * 60 * 60,
+            max_age=token_response.get('expires_in'),
         )
     )
 

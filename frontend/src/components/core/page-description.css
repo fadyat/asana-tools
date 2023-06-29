@@ -1,0 +1,21 @@
+.page-description {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin: 1rem;
+}
+
+.page-description-content {
+    min-height: 7rem;
+    min-width: 30rem;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 0 0.5rem 0.1rem rgba(0, 0, 0, 0.2);
+}
+
+.page-description-point {
+    display: flex;
+    align-items: center;
+    margin: 0.5rem 0;
+    text-align: left;
+}
