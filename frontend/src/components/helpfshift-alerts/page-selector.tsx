@@ -27,7 +27,6 @@ const HelpshiftPageSelector = ({selectedPage, setSelectedPage}: HelpshiftPageSel
                         .map((page) => (
                             <MenuItem key={page}
                                       value={page}
-                                      disabled={page !== HelpshiftAlertsPages.LIMITS}
                             >
                                 {page}
                             </MenuItem>

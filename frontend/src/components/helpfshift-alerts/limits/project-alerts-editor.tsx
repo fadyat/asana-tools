@@ -15,6 +15,7 @@ import {SaveAction} from "../../core/actions/save";
 import {DeleteAction} from "../../core/actions/delete";
 import {ApiAlertProps} from "../../core/api-alert";
 import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
+import {SubsAction} from "./subscribers-actions";
 
 
 export type ProjectLimitsEditorProps = {
@@ -141,6 +142,11 @@ const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLim
 
                                       setTimeout(() => setApiAlertProps(null), 5000);
                                   }}
+                    />
+                    <SubsAction params={params}
+                                rowId={currentRowId}
+                                setRowId={setCurrentRowId}
+                                selectedProject={selectedProject}
                     />
                 </>
             },

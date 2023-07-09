@@ -4,6 +4,7 @@ import {HelpshiftAlertsPages} from "./helpshift-alerts";
 import {Add, Close} from "@mui/icons-material";
 import {CreateProjectLimitForm} from "./limits/create-project-limit";
 import {ApiAlertProps} from "../core/api-alert";
+import {CreateSlackChannelForm} from "./slack-channels/create-slack-channel";
 
 
 export type HelpshiftPageCreatorProps = {
@@ -48,18 +49,12 @@ const HelpshiftPageCreator = ({selectedPage, selectedProject, setApiAlertProps}:
                 }
 
                 {
-                    selectedPage && selectedPage === HelpshiftAlertsPages.SUBSCRIBERS && (
-                        <div>
-                            Subscribers create page a not done yet
-                        </div>
-                    )
-                }
-
-                {
                     selectedPage && selectedPage === HelpshiftAlertsPages.SLACK_CHANNELS && (
-                        <div>
-                            Slack Channels create page a not done yet
-                        </div>
+                        <CreateSlackChannelForm
+                            selectedProject={selectedProject}
+                            setApiAlertProps={setApiAlertProps}
+                            setIsOpen={setIsOpen}
+                        />
                     )
                 }
 

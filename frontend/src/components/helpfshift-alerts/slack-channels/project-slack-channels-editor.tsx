@@ -37,7 +37,7 @@ const ProjectSlackChannelsEditor = ({selectedProject, sx}: ProjectSlackChannelsE
                                 rowId={currentRowId}
                                 setRowId={setCurrentRowId}
                                 onClickFunc={() => {
-                                    console.log('saved')
+                                    console.log('mock save')
                                 }}
                     />
                     <DeleteAction params={params}
@@ -47,6 +47,7 @@ const ProjectSlackChannelsEditor = ({selectedProject, sx}: ProjectSlackChannelsE
                                       setProjectSlackChannels(projectSlackChannels.filter(
                                           (channel) => channel.id !== params.id
                                       ))
+                                      console.log('mock delete')
                                   }}
                     />
                 </>
