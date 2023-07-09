@@ -29,3 +29,9 @@ export const getSlackChannels = async (
 
     return await response.json()
 }
+
+export type CreateSlackChannel = {
+    name: string,
+    type: string,
+    url: string,
+}

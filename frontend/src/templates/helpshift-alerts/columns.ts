@@ -29,3 +29,24 @@ export const helpshiftLimitsSlackChannelColumns: GridColDef[] = [
     {field: 'type', headerName: 'Type', width: 150, editable: true, type: 'number'},
     {field: 'url', headerName: 'URL', width: 700, editable: true},
 ]
+
+export const helpshiftLimitsSubscriberColumns: GridColDef[] = [
+    {field: 'id', headerName: 'ID', width: 75, type: 'number'},
+    {field: 'name', headerName: 'Name', width: 300, editable: true},
+    {field: 'phone', headerName: 'Phone', width: 150, editable: true},
+    {field: 'sms', headerName: 'SMS', width: 150, editable: true, type: 'boolean'},
+    {field: 'calls', headerName: 'Calls', width: 150, editable: true, type: 'boolean'},
+]
+
+export const helpshiftCreateSubscriberColumns: TextFieldProps[] = [
+    {name: 'name', label: 'Name', placeholder: 'Ryan Gosling'},
+    {name: 'phone', label: 'Phone', placeholder: '+88005553535'},
+    {name: 'sms', label: 'SMS', placeholder: 'true'},
+    {name: 'calls', label: 'Calls', placeholder: 'true'},
+]
+
+export const helpshiftCreateSlackChannelColumns: TextFieldProps[] = [
+    {name: 'name', label: 'Name', placeholder: 'Slack Channel'},
+    {name: 'type', label: 'Type', placeholder: '1'},
+    {name: 'url', label: 'URL', placeholder: 'https://hooks.slack.com/services/...'},
+]
