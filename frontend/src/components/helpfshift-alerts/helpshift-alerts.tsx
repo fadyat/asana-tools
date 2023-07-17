@@ -63,6 +63,7 @@ const HelpshiftAlerts: FC = memo(() => {
                     <ProjectSlackChannelsEditor
                         selectedProject={selectedProject}
                         sx={{height: '68vh', marginTop: '15px'}}
+                        setApiAlertProps={setApiAlertProps}
                     />
                 )
             }
