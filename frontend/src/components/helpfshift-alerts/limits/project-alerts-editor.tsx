@@ -9,7 +9,7 @@ import {SaveAction} from "../../core/actions/save";
 import {DeleteAction} from "../../core/actions/delete";
 import {ApiAlertProps} from "../../core/api-alert";
 import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
-import {RenderSubscribers, SubsAction} from "./subscribers-actions";
+import {RenderSubscribers, SubsAction} from "../subscribers/subscribers-actions";
 import {hsClient} from "../../../api/helpshift/client";
 
 
@@ -172,7 +172,13 @@ const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLim
                         setIsSubsOpen(false)
                         setCurrentRowId(null)
                     }}
-                    sx={{position: 'absolute'}}
+                    sx={{
+                        "& .MuiDialog-container": {
+                            "& .MuiPaper-root": {
+                                maxWidth: "800px",
+                            },
+                        },
+                    }}
             >
                 {/* when clicking to a human icon, currentRowId is set to the limit id */}
                 <RenderSubscribers limitId={currentRowId!}

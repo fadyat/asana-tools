@@ -6,10 +6,10 @@ import {Add, Close, EmojiPeople} from "@mui/icons-material";
 import {helpshiftLimitsSubscriberColumns} from "../../../templates/helpshift-alerts/columns";
 import {SaveAction} from "../../core/actions/save";
 import {DeleteAction} from "../../core/actions/delete";
-import {CreateLimitSub} from "./create-limit-sub";
 import {ApiAlertProps} from "../../core/api-alert";
 import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
 import {hsClient} from "../../../api/helpshift/client";
+import {CreateLimitSub} from "./create-limit-sub";
 
 export type SubsActionsProps = {
     params: GridCellParams,
@@ -161,12 +161,14 @@ export const RenderSubscribers = ({limitId, setApiAlertProps}: RenderSubscribers
     ]
 
     return (
-        <Box sx={{
-            alignItems: 'center',
-            position: 'relative',
-            margin: '15px',
-            minHeight: '500px',
-        }}>
+        <Box
+            minWidth={'700px'}
+            sx={{
+                position: 'relative',
+                margin: '15px',
+                minHeight: '500px',
+            }}
+        >
             {
                 <DataGrid
                     rows={subs}
