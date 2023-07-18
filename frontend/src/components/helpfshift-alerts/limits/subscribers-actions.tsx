@@ -1,30 +1,28 @@
 import {DataGrid, GridCellParams} from "@mui/x-data-grid";
-import React, {useState} from "react";
-import {Subscriber} from "../../../api/helpshift/subscriber";
+import React, {useEffect, useState} from "react";
+import {
+    deleteSubscriber,
+    getLimitSubs,
+    Subscriber,
+    updateSubscriber,
+    UpdateSubscriber
+} from "../../../api/helpshift/subscriber";
 import {Box, Dialog, Fab, Typography} from "@mui/material";
 import {Add, Close, EmojiPeople} from "@mui/icons-material";
 import {helpshiftLimitsSubscriberColumns} from "../../../templates/helpshift-alerts/columns";
 import {SaveAction} from "../../core/actions/save";
 import {DeleteAction} from "../../core/actions/delete";
-import {CreateProjectSub} from "./create-project-sub";
+import {CreateLimitSub} from "./create-limit-sub";
+import {ApiAlertProps} from "../../core/api-alert";
+import {helpshiftAlertsUrl, helpshiftApiKey} from "../../../templates/consts";
+import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
 
 export type SubsActionsProps = {
     params: GridCellParams,
-    rowId: number | null,
-    setRowId: (v: number | null) => void,
-    selectedProject: number,
+    onClickFunc: (row: GridCellParams) => void,
 }
 
-export const SubsAction = ({params, rowId, setRowId, selectedProject}: SubsActionsProps) => {
-    const [subs, setSubs] = useState<Subscriber[]>([{
-        id: 1,
-        name: 'mocked-name',
-        phone: '+88005553535',
-        sms: true,
-        calls: true,
-    }]);
-
-    const [isOpen, setIsOpen] = useState<boolean>(false);
+export const SubsAction = ({params, onClickFunc}: SubsActionsProps) => {
 
     return (
         <Box
@@ -42,33 +40,57 @@ export const SubsAction = ({params, rowId, setRowId, selectedProject}: SubsActio
                      height: 40,
                      boxShadow: 'none',
                  }}
-                 onClick={() => {
-                     // getProjectSubscribers(helpshiftAlertsUrl, helpshiftApiKey, selectedProject)
-                     //     .then((subscribers) => setSubs(subscribers))
-
-                     setIsOpen(!isOpen)
-                 }}
+                 onClick={() => onClickFunc(params)}
             >
                 <EmojiPeople/>
             </Fab>
-
-            <Dialog open={isOpen}
-                    onClose={() => setIsOpen(false)}
-            >
-                {
-                    subs && (
-                        <RenderSubscribers subscribers={subs}/>
-                    )
-                }
-
-            </Dialog>
         </Box>
     )
 }
 
-const RenderSubscribers = ({subscribers}: { subscribers: Subscriber[] }) => {
+export type RenderSubscribersProps = {
+    limitId: number,
+    setApiAlertProps: (v: ApiAlertProps | null) => void,
+}
+
+
+const toUpdatedSubscriber = (row: GridRowModel): UpdateSubscriber => {
+
+    return {
+        id: row.id,
+        name: row.name,
+        phone: row.phone,
+        sms: row.sms,
+        calls: row.calls,
+    }
+}
+
+const toSubscriber = (row: GridRowModel): Subscriber => {
+
+    return {
+        id: row.id,
+        name: row.name,
+        phone: row.phone,
+        sms: row.sms,
+        calls: row.calls,
+    }
+}
+
+export const RenderSubscribers = ({limitId, setApiAlertProps}: RenderSubscribersProps) => {
     const [rowId, setRowId] = useState<number | null>(null);
     const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [subs, setSubs] = useState<Subscriber[]>([]);
+
+    useEffect(() => {
+        getLimitSubs(helpshiftAlertsUrl, helpshiftApiKey, limitId)
+            .then((subs) => setSubs(subs))
+            // todo: think about how to handle errors
+            .catch((e) => setApiAlertProps({
+                message: e.message,
+                severity: 'error',
+            }))
+
+    }, [])
 
     const columns = [
         ...helpshiftLimitsSubscriberColumns,
@@ -83,23 +105,67 @@ const RenderSubscribers = ({subscribers}: { subscribers: Subscriber[] }) => {
                                 rowId={rowId}
                                 setRowId={setRowId}
                                 onClickFunc={(_) => {
-                                    console.log('mock save')
+                                    const updatedSubscriber = toUpdatedSubscriber(params.row);
+                                    const response = updateSubscriber(helpshiftAlertsUrl, helpshiftApiKey, limitId, updatedSubscriber)
+
+                                    response.then((v) => {
+                                        if (v.ok) {
+                                            setApiAlertProps({
+                                                severity: 'success',
+                                                message: 'Ok'
+                                            });
+
+                                            setSubs(subs.map((sub) => {
+                                                if (sub.id === updatedSubscriber.id) {
+                                                    return toSubscriber(params.row);
+                                                }
+
+                                                return sub;
+                                            }));
+                                            return;
+                                        }
+
+                                        setApiAlertProps({
+                                            severity: 'error',
+                                            message: `Failed: ${updatedSubscriber.name}\n${v.error}`,
+                                        });
+                                    })
+
+                                    setTimeout(() => setApiAlertProps(null), 5000);
                                 }}
                     />
 
                     <DeleteAction params={params}
                                   rowId={rowId}
                                   setRowId={setRowId}
-                                  onClickFunc={(_) => {
-                                      console.log('mock delete')
+                                  onClickFunc={() => {
+                                      const subId = params.row.id;
+                                      const response = deleteSubscriber(helpshiftAlertsUrl, helpshiftApiKey, limitId, subId)
+
+                                      response.then((v) => {
+                                          if (v.ok) {
+                                              setApiAlertProps({
+                                                  severity: 'success',
+                                                  message: 'Ok'
+                                              });
+                                              setSubs(subs.filter((sub) => sub.id !== subId));
+                                              return;
+                                          }
+
+                                          setApiAlertProps({
+                                              severity: 'error',
+                                              message: `Failed!\n${v.error}`,
+                                          });
+                                      })
+
+                                      setTimeout(() => setApiAlertProps(null), 5000);
                                   }}
+
                     />
                 </>
             },
         }
     ]
-
-    console.log(subscribers)
 
     return (
         <Box sx={{
@@ -109,9 +175,9 @@ const RenderSubscribers = ({subscribers}: { subscribers: Subscriber[] }) => {
             minHeight: '500px',
         }}>
             {
-                subscribers.length ? (
+                subs.length ? (
                     <DataGrid
-                        rows={subscribers}
+                        rows={subs}
                         columns={columns}
                         getRowId={(sub) => sub.id}
                         onCellEditStop={(params) => {
@@ -151,8 +217,10 @@ const RenderSubscribers = ({subscribers}: { subscribers: Subscriber[] }) => {
                     <Close/>
                 </Fab>
 
-                <CreateProjectSub
+                <CreateLimitSub
                     setIsOpen={setIsOpen}
+                    limitId={limitId}
+                    setApiAlertProps={setApiAlertProps}
                 />
 
             </Dialog>

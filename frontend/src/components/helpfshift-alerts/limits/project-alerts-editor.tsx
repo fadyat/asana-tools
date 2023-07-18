@@ -7,7 +7,7 @@ import {
 } from "../../../api/helpshift/limit";
 import {helpshiftAlertsUrl, helpshiftApiKey} from "../../../templates/consts";
 import {DataGrid, GridCellParams} from '@mui/x-data-grid';
-import {Box} from "@mui/material";
+import {Box, Dialog} from "@mui/material";
 import {SxProps} from "@mui/system";
 import {Theme} from "@mui/material/styles";
 import {helpshiftLimitsColumns} from "../../../templates/helpshift-alerts/columns";
@@ -15,7 +15,7 @@ import {SaveAction} from "../../core/actions/save";
 import {DeleteAction} from "../../core/actions/delete";
 import {ApiAlertProps} from "../../core/api-alert";
 import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
-import {SubsAction} from "./subscribers-actions";
+import {RenderSubscribers, SubsAction} from "./subscribers-actions";
 
 
 export type ProjectLimitsEditorProps = {
@@ -73,6 +73,7 @@ const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLim
     const [projectLimits, setProjectLimits] = useState<ProjectLimit[]>([]);
     const [paginationModel, setPaginationModel] = useState({page: 0, pageSize: 25})
     const [currentRowId, setCurrentRowId] = useState<number | null>(null);
+    const [isSubsOpen, setIsSubsOpen] = useState(false);
 
     useEffect(() => {
         getProjectLimits(helpshiftAlertsUrl, helpshiftApiKey, selectedProject)
@@ -144,15 +145,15 @@ const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLim
                                   }}
                     />
                     <SubsAction params={params}
-                                rowId={currentRowId}
-                                setRowId={setCurrentRowId}
-                                selectedProject={selectedProject}
+                                onClickFunc={(params: GridCellParams) => {
+                                    setIsSubsOpen(true);
+                                    setCurrentRowId(params.row.id as number);
+                                }}
                     />
                 </>
             },
         }
     ], [currentRowId]);
-
 
     return (
         <Box sx={{...sx}}>
@@ -166,6 +167,21 @@ const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLim
                     setCurrentRowId(params.id as number);
                 }}
             />
+
+            <Dialog open={isSubsOpen}
+                    onClose={() => {
+                        setIsSubsOpen(false)
+                        setCurrentRowId(null)
+                    }}
+                    sx={{position: 'absolute'}}
+            >
+                {/* when clicking to a human icon, currentRowId is set to the limit id */}
+                <RenderSubscribers limitId={currentRowId!}
+                                   setApiAlertProps={setApiAlertProps}
+                />
+
+            </Dialog>
+
         </Box>
     );
 

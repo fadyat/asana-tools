@@ -1,6 +1,5 @@
 import React from "react";
-import {AlertColor, Snackbar} from "@mui/material";
-import {Alert} from "@mui/lab";
+import {AlertColor, Snackbar, Alert} from "@mui/material";
 
 export type ApiAlertProps = {
     severity: AlertColor
