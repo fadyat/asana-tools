@@ -1,9 +1,9 @@
 import {Button, FormControl, TextField, Typography} from "@mui/material";
 import React, {useState} from "react";
 import {helpshiftCreateSubscriberColumns} from "../../../templates/helpshift-alerts/columns";
-import {createSubscriber, CreateSubscriber} from "../../../api/helpshift/subscriber";
-import {helpshiftAlertsUrl, helpshiftApiKey} from "../../../templates/consts";
+import {CreateSubscriberDto} from "../../../api/helpshift/subscriber";
 import {ApiAlertProps} from "../../core/api-alert";
+import {hsClient} from "../../../api/helpshift/client";
 
 
 export type CreateProjectSubFormProps = {
@@ -73,7 +73,7 @@ export const CreateLimitSub = ({setIsOpen, limitId, setApiAlertProps}: CreatePro
                                 key={field.name}
                                 placeholder={field.placeholder}
                                 sx={{margin: '5px'}}
-                                value={formState[field.name as keyof CreateSubscriber]}
+                                value={formState[field.name as keyof CreateSubscriberDto]}
                                 onChange={(e) => {
                                     setFormState({
                                         ...formState,
@@ -91,9 +91,8 @@ export const CreateLimitSub = ({setIsOpen, limitId, setApiAlertProps}: CreatePro
                     sx={{margin: '5px'}}
                     onClick={() => {
                         const dto = toCreateSubscriber(formState);
-                        const response = createSubscriber(helpshiftAlertsUrl, helpshiftApiKey, limitId, dto);
 
-                        response.then((v) => {
+                        hsClient.subscribers.new(limitId, dto).then((v) => {
                             if (v.ok) {
                                 setApiAlertProps({
                                     severity: 'success',

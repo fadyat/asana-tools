@@ -1,21 +1,15 @@
 import {DataGrid, GridCellParams} from "@mui/x-data-grid";
 import React, {useEffect, useState} from "react";
-import {
-    deleteSubscriber,
-    getLimitSubs,
-    Subscriber,
-    updateSubscriber,
-    UpdateSubscriber
-} from "../../../api/helpshift/subscriber";
-import {Box, Dialog, Fab, Typography} from "@mui/material";
+import {Subscriber, UpdateSubscriberDto} from "../../../api/helpshift/subscriber";
+import {Box, Dialog, Fab} from "@mui/material";
 import {Add, Close, EmojiPeople} from "@mui/icons-material";
 import {helpshiftLimitsSubscriberColumns} from "../../../templates/helpshift-alerts/columns";
 import {SaveAction} from "../../core/actions/save";
 import {DeleteAction} from "../../core/actions/delete";
 import {CreateLimitSub} from "./create-limit-sub";
 import {ApiAlertProps} from "../../core/api-alert";
-import {helpshiftAlertsUrl, helpshiftApiKey} from "../../../templates/consts";
 import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
+import {hsClient} from "../../../api/helpshift/client";
 
 export type SubsActionsProps = {
     params: GridCellParams,
@@ -54,7 +48,7 @@ export type RenderSubscribersProps = {
 }
 
 
-const toUpdatedSubscriber = (row: GridRowModel): UpdateSubscriber => {
+const toUpdatedSubscriber = (row: GridRowModel): UpdateSubscriberDto => {
 
     return {
         id: row.id,
@@ -82,13 +76,14 @@ export const RenderSubscribers = ({limitId, setApiAlertProps}: RenderSubscribers
     const [subs, setSubs] = useState<Subscriber[]>([]);
 
     useEffect(() => {
-        getLimitSubs(helpshiftAlertsUrl, helpshiftApiKey, limitId)
-            .then((subs) => setSubs(subs))
-            // todo: think about how to handle errors
-            .catch((e) => setApiAlertProps({
-                message: e.message,
-                severity: 'error',
-            }))
+        hsClient.subscribers.getAll(limitId).then(r => {
+            if (!r.ok) {
+                console.error(`Failed to get subscribers ${r.error}`)
+                return
+            }
+
+            setSubs(r.data!)
+        })
 
     }, [])
 
@@ -105,10 +100,9 @@ export const RenderSubscribers = ({limitId, setApiAlertProps}: RenderSubscribers
                                 rowId={rowId}
                                 setRowId={setRowId}
                                 onClickFunc={(_) => {
-                                    const updatedSubscriber = toUpdatedSubscriber(params.row);
-                                    const response = updateSubscriber(helpshiftAlertsUrl, helpshiftApiKey, limitId, updatedSubscriber)
+                                    const dto = toUpdatedSubscriber(params.row);
 
-                                    response.then((v) => {
+                                    hsClient.subscribers.update(limitId, dto).then((v) => {
                                         if (v.ok) {
                                             setApiAlertProps({
                                                 severity: 'success',
@@ -116,7 +110,7 @@ export const RenderSubscribers = ({limitId, setApiAlertProps}: RenderSubscribers
                                             });
 
                                             setSubs(subs.map((sub) => {
-                                                if (sub.id === updatedSubscriber.id) {
+                                                if (sub.id === dto.id) {
                                                     return toSubscriber(params.row);
                                                 }
 
@@ -127,7 +121,7 @@ export const RenderSubscribers = ({limitId, setApiAlertProps}: RenderSubscribers
 
                                         setApiAlertProps({
                                             severity: 'error',
-                                            message: `Failed: ${updatedSubscriber.name}\n${v.error}`,
+                                            message: `Failed: ${dto.name}\n${v.error}`,
                                         });
                                     })
 
@@ -140,9 +134,8 @@ export const RenderSubscribers = ({limitId, setApiAlertProps}: RenderSubscribers
                                   setRowId={setRowId}
                                   onClickFunc={() => {
                                       const subId = params.row.id;
-                                      const response = deleteSubscriber(helpshiftAlertsUrl, helpshiftApiKey, limitId, subId)
 
-                                      response.then((v) => {
+                                      hsClient.subscribers.delete(limitId, subId).then((v) => {
                                           if (v.ok) {
                                               setApiAlertProps({
                                                   severity: 'success',
@@ -175,20 +168,15 @@ export const RenderSubscribers = ({limitId, setApiAlertProps}: RenderSubscribers
             minHeight: '500px',
         }}>
             {
-                subs.length ? (
-                    <DataGrid
-                        rows={subs}
-                        columns={columns}
-                        getRowId={(sub) => sub.id}
-                        onCellEditStop={(params) => {
-                            setRowId(params.id as number);
-                        }}
-                    />
-                ) : (
-                    <Typography>
-                        No subscribers
-                    </Typography>
-                )
+                <DataGrid
+                    rows={subs}
+                    columns={columns}
+                    getRowId={(sub) => sub.id}
+                    sx={{minHeight: '300px'}}
+                    onCellEditStop={(params) => {
+                        setRowId(params.id as number);
+                    }}
+                />
             }
 
             <Fab color="primary"

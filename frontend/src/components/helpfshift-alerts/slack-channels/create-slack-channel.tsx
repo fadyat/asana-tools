@@ -2,8 +2,8 @@ import {Button, FormControl, TextField, Typography} from "@mui/material";
 import React, {useState} from "react";
 import {helpshiftCreateSlackChannelColumns} from "../../../templates/helpshift-alerts/columns";
 import {ApiAlertProps} from "../../core/api-alert";
-import {createSlackChannel, CreateSlackChannel} from "../../../api/helpshift/slack";
-import {helpshiftAlertsUrl, helpshiftApiKey} from "../../../templates/consts";
+import {CreateSlackChannelDto} from "../../../api/helpshift/slack";
+import {hsClient} from "../../../api/helpshift/client";
 
 
 export type CreateSlackChannelFormProps = {
@@ -61,7 +61,7 @@ export const CreateSlackChannelForm = ({selectedProject, setApiAlertProps, setIs
                                 key={field.name}
                                 placeholder={field.placeholder}
                                 sx={{margin: '5px'}}
-                                value={formState[field.name as keyof CreateSlackChannel]}
+                                value={formState[field.name as keyof CreateSlackChannelDto]}
                                 onChange={(e) => {
                                     setFormState({
                                         ...formState,
@@ -79,9 +79,8 @@ export const CreateSlackChannelForm = ({selectedProject, setApiAlertProps, setIs
                     sx={{margin: '5px'}}
                     onClick={() => {
                         const dto = toCreateSlackChannel(formState);
-                        const response = createSlackChannel(helpshiftAlertsUrl, helpshiftApiKey, selectedProject, dto);
 
-                        response.then((v) => {
+                        hsClient.slackChannels.new(selectedProject, dto).then((v) => {
                             if (v.ok) {
                                 setApiAlertProps({
                                     severity: 'success',

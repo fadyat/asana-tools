@@ -1,27 +1,17 @@
-export type GameProject = {
+import {ApiClient, ApiResponse} from "../client";
+import {helpshiftApiKey} from "../../templates/consts";
+
+export type Project = {
     id: number
     name: string
 }
 
-export const getGameProjects = async (helpshiftToolsUrl: string, helpshiftApiKey: string): Promise<GameProject[]> => {
-    const projectsEndpoint = `${helpshiftToolsUrl}/api/Projects`
+export class ProjectApiClient extends ApiClient {
 
-    let response: Response;
-    try {
-        response = await fetch(projectsEndpoint, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Apikey': helpshiftApiKey
-            },
-            credentials: 'include',
-        });
-    } catch (TypeError) {
-        return []
+    async getAll(): Promise<ApiResponse<Project[]>> {
+        return await this._get<Project[]>({
+            endpoint: '/api/Projects',
+            headers: {'Apikey': helpshiftApiKey},
+        })
     }
-
-    if (!response.ok) {
-        return []
-    }
-
-    return await response.json()
 }

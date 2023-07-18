@@ -1,9 +1,9 @@
 import {Button, FormControl, TextField, Typography} from "@mui/material";
 import React, {useState} from "react";
-import {createProjectLimit, CreateProjectLimit} from "../../../api/helpshift/limit";
-import {helpshiftAlertsUrl, helpshiftApiKey} from "../../../templates/consts";
+import {CreateLimitDto} from "../../../api/helpshift/limit";
 import {helpshiftCreateLimitsColumns} from "../../../templates/helpshift-alerts/columns";
 import {ApiAlertProps} from "../../core/api-alert";
+import {hsClient} from "../../../api/helpshift/client";
 
 
 export type CreateProjectLimitFormProps = {
@@ -75,7 +75,7 @@ export const CreateProjectLimitForm = ({selectedProject, setApiAlertProps, setIs
                                 key={field.name}
                                 placeholder={field.placeholder}
                                 sx={{margin: '5px'}}
-                                value={formState[field.name as keyof CreateProjectLimit]}
+                                value={formState[field.name as keyof CreateLimitDto]}
                                 onChange={(e) => {
                                     setFormState({
                                         ...formState,
@@ -93,23 +93,23 @@ export const CreateProjectLimitForm = ({selectedProject, setApiAlertProps, setIs
                     sx={{margin: '5px'}}
                     onClick={() => {
                         const dto = toCreateProjectLimit(formState);
-                        const response = createProjectLimit(helpshiftAlertsUrl, helpshiftApiKey, dto)
 
-                        response.then((v) => {
-                            if (v.ok) {
+                        hsClient.limits.new(dto).then((r) => {
+                            if (r.ok) {
                                 setApiAlertProps({
                                     severity: 'success',
                                     message: 'Ok, refresh page please, not implemented yet',
                                 })
 
-                                // todo: update limits without page refresh
+                                // todo: update limits without page refresh (add new limit to the list)
+                                //  does backend support it?
                                 setIsOpen(false);
                                 return;
                             }
 
                             setApiAlertProps({
                                 severity: 'error',
-                                message: `Failed: \n${v.error}`,
+                                message: `Failed: \n${r.error}`,
                             });
                         })
 

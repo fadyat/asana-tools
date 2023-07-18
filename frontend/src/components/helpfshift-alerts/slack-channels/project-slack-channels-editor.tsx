@@ -1,14 +1,7 @@
 import {Theme} from "@mui/material/styles";
 import {SxProps} from "@mui/system";
 import React, {useEffect, useState} from "react";
-import {
-    deleteSlackChannel,
-    getSlackChannels,
-    SlackChannel,
-    updateSlackChannel,
-    UpdateSlackChannel
-} from "../../../api/helpshift/slack";
-import {helpshiftAlertsUrl, helpshiftApiKey} from "../../../templates/consts";
+import {SlackChannel, UpdateSlackChannelDto} from "../../../api/helpshift/slack";
 import {DataGrid, GridCellParams} from "@mui/x-data-grid";
 import {Box} from "@mui/material";
 import {SaveAction} from "../../core/actions/save";
@@ -16,6 +9,7 @@ import {DeleteAction} from "../../core/actions/delete";
 import {helpshiftLimitsSlackChannelColumns} from "../../../templates/helpshift-alerts/columns";
 import {ApiAlertProps} from "../../core/api-alert";
 import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
+import {hsClient} from "../../../api/helpshift/client";
 
 export type ProjectSlackChannelsEditorProps = {
     setApiAlertProps: (v: ApiAlertProps | null) => void,
@@ -24,7 +18,7 @@ export type ProjectSlackChannelsEditorProps = {
 }
 
 // todo: make it pretty
-const toUpdatedSlackChannel = (row: GridRowModel): UpdateSlackChannel => {
+const toUpdatedSlackChannel = (row: GridRowModel): UpdateSlackChannelDto => {
 
     return {
         id: row.id,
@@ -53,8 +47,14 @@ const ProjectSlackChannelsEditor = (
     const [currentRowId, setCurrentRowId] = useState<number | null>(null);
 
     useEffect(() => {
-        getSlackChannels(helpshiftAlertsUrl, helpshiftApiKey, selectedProject)
-            .then((slackChannels) => setProjectSlackChannels(slackChannels))
+        hsClient.slackChannels.getAll(selectedProject).then((r) => {
+            if (!r.ok) {
+                console.error(`Failed to get slack channels ${r.error}`);
+                return
+            }
+
+            setProjectSlackChannels(r.data!);
+        })
     }, [selectedProject]);
 
     const columns = [
@@ -70,10 +70,9 @@ const ProjectSlackChannelsEditor = (
                                 rowId={currentRowId}
                                 setRowId={setCurrentRowId}
                                 onClickFunc={() => {
-                                    const updatedSlackChannel = toUpdatedSlackChannel(params.row);
-                                    const response = updateSlackChannel(helpshiftAlertsUrl, helpshiftApiKey, selectedProject, updatedSlackChannel);
+                                    const dto = toUpdatedSlackChannel(params.row);
 
-                                    response.then((v) => {
+                                    hsClient.slackChannels.update(selectedProject, dto).then((v) => {
                                         if (v.ok) {
                                             setApiAlertProps({
                                                 severity: 'success',
@@ -88,7 +87,7 @@ const ProjectSlackChannelsEditor = (
 
                                         setApiAlertProps({
                                             severity: 'error',
-                                            message: `Failed: ${updatedSlackChannel.name}\n${v.error}`,
+                                            message: `Failed: ${dto.name}\n${v.error}`,
                                         });
                                     })
 
@@ -100,9 +99,8 @@ const ProjectSlackChannelsEditor = (
                                   setRowId={setCurrentRowId}
                                   onClickFunc={() => {
                                       const [projectId, channelId] = [selectedProject, params.row.id];
-                                      const response = deleteSlackChannel(helpshiftAlertsUrl, helpshiftApiKey, projectId, channelId);
 
-                                      response.then((v) => {
+                                      hsClient.slackChannels.delete(projectId, channelId).then((v) => {
                                           if (v.ok) {
                                               setApiAlertProps({
                                                   severity: 'success',

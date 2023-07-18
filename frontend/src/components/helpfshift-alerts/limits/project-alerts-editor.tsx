@@ -1,11 +1,5 @@
 import React, {useEffect, useMemo, useState} from "react";
-import {
-    deleteProjectLimit,
-    getProjectLimits,
-    ProjectLimit, updateProjectLimit,
-    UpdateProjectLimit,
-} from "../../../api/helpshift/limit";
-import {helpshiftAlertsUrl, helpshiftApiKey} from "../../../templates/consts";
+import {Limit, UpdateLimitDto} from "../../../api/helpshift/limit";
 import {DataGrid, GridCellParams} from '@mui/x-data-grid';
 import {Box, Dialog} from "@mui/material";
 import {SxProps} from "@mui/system";
@@ -16,6 +10,7 @@ import {DeleteAction} from "../../core/actions/delete";
 import {ApiAlertProps} from "../../core/api-alert";
 import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
 import {RenderSubscribers, SubsAction} from "./subscribers-actions";
+import {hsClient} from "../../../api/helpshift/client";
 
 
 export type ProjectLimitsEditorProps = {
@@ -26,7 +21,7 @@ export type ProjectLimitsEditorProps = {
 
 
 // todo: make it pretty
-export const toUpdateProjectLimit = (row: GridRowModel): UpdateProjectLimit => {
+export const toUpdateProjectLimit = (row: GridRowModel): UpdateLimitDto => {
     let daysOfWeek = row.daysOfWeek;
     if (typeof daysOfWeek === 'string') {
         daysOfWeek = daysOfWeek.split(',').map((day: string) => parseInt(day));
@@ -47,7 +42,7 @@ export const toUpdateProjectLimit = (row: GridRowModel): UpdateProjectLimit => {
 }
 
 // todo: make it pretty
-export const toProjectLimit = (row: GridRowModel): ProjectLimit => {
+export const toProjectLimit = (row: GridRowModel): Limit => {
     let daysOfWeek = row.daysOfWeek;
     if (typeof daysOfWeek === 'string') {
         daysOfWeek = daysOfWeek.split(',').map((day: string) => parseInt(day));
@@ -70,14 +65,20 @@ export const toProjectLimit = (row: GridRowModel): ProjectLimit => {
 
 
 const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLimitsEditorProps) => {
-    const [projectLimits, setProjectLimits] = useState<ProjectLimit[]>([]);
+    const [projectLimits, setProjectLimits] = useState<Limit[]>([]);
     const [paginationModel, setPaginationModel] = useState({page: 0, pageSize: 25})
     const [currentRowId, setCurrentRowId] = useState<number | null>(null);
     const [isSubsOpen, setIsSubsOpen] = useState(false);
 
     useEffect(() => {
-        getProjectLimits(helpshiftAlertsUrl, helpshiftApiKey, selectedProject)
-            .then((projectLimits) => setProjectLimits(projectLimits))
+        hsClient.limits.getAll(selectedProject).then((r) => {
+            if (!r.ok) {
+                console.error(`Failed to get limits: ${r.error}`)
+                return
+            }
+
+            setProjectLimits(r.data!)
+        })
     }, [selectedProject]);
 
     const columns = useMemo(() => [
@@ -93,10 +94,9 @@ const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLim
                                 rowId={currentRowId}
                                 setRowId={setCurrentRowId}
                                 onClickFunc={(params: GridCellParams) => {
-                                    const updatedProjectLimit = toUpdateProjectLimit(params.row);
-                                    const response = updateProjectLimit(helpshiftAlertsUrl, helpshiftApiKey, updatedProjectLimit)
+                                    const dto = toUpdateProjectLimit(params.row);
 
-                                    response.then((v) => {
+                                    hsClient.limits.update(dto).then((v) => {
                                         if (v.ok) {
                                             setApiAlertProps({
                                                 severity: 'success',
@@ -111,7 +111,7 @@ const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLim
 
                                         setApiAlertProps({
                                             severity: 'error',
-                                            message: `Failed: ${updatedProjectLimit.name}\n${v.error}`,
+                                            message: `Failed: ${dto.name}\n${v.error}`,
                                         });
                                     })
 
@@ -123,9 +123,8 @@ const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLim
                                   setRowId={setCurrentRowId}
                                   onClickFunc={(params: GridCellParams) => {
                                       const [projectId, limitId] = [selectedProject, params.row.id];
-                                      const response = deleteProjectLimit(helpshiftAlertsUrl, helpshiftApiKey, projectId, limitId);
 
-                                      response.then((v) => {
+                                      hsClient.limits.delete(projectId, limitId).then((v) => {
                                           if (v.ok) {
                                               setApiAlertProps({
                                                   severity: 'success',

@@ -1,7 +1,6 @@
 import PageDescription from "../core/page-description";
 import React, {FC, memo, useState} from "react";
-import GameProjectSelector from "./game-project-selector";
-import {GameProject} from "../../api/helpshift/project";
+import HelpshiftProjectSelector from "./project-selector";
 import ProjectLimitsEditor from "./limits/project-alerts-editor";
 import HelpshiftPageSelector from "./page-selector";
 import {Box} from "@mui/material";
@@ -16,9 +15,8 @@ export enum HelpshiftAlertsPages {
 
 
 const HelpshiftAlerts: FC = memo(() => {
-    const [gameProjects, setGameProjects] = useState<GameProject[]>([]);
     const [selectedPage, setSelectedPage] = useState<HelpshiftAlertsPages>(HelpshiftAlertsPages.LIMITS);
-    const [selectedProject, setSelectedProject] = useState<number>(0);
+    const [projectId, setProjectId] = useState<number>(0);
     const [apiAlertProps, setApiAlertProps] = useState<ApiAlertProps | null>(null);
 
     return (
@@ -28,16 +26,14 @@ const HelpshiftAlerts: FC = memo(() => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
             }}>
-                <GameProjectSelector
-                    projects={gameProjects}
-                    setProjects={setGameProjects}
-                    selectedProject={selectedProject}
-                    setSelectedProject={setSelectedProject}
+                <HelpshiftProjectSelector
+                    projectId={projectId}
+                    setProjectId={setProjectId}
                 />
 
                 <HelpshiftPageCreator
                     selectedPage={selectedPage}
-                    selectedProject={selectedProject}
+                    selectedProject={projectId}
                     setApiAlertProps={setApiAlertProps}
                 />
 
@@ -48,11 +44,13 @@ const HelpshiftAlerts: FC = memo(() => {
             </Box>
 
 
+            {/* todo: make with single block */}
+
             {
                 selectedPage && selectedPage === HelpshiftAlertsPages.LIMITS && (
                     <ProjectLimitsEditor
                         setApiAlertProps={setApiAlertProps}
-                        selectedProject={selectedProject}
+                        selectedProject={projectId}
                         sx={{height: '68vh', marginTop: '15px'}}
                     />
                 )
@@ -61,7 +59,7 @@ const HelpshiftAlerts: FC = memo(() => {
             {
                 selectedPage && selectedPage === HelpshiftAlertsPages.SLACK_CHANNELS && (
                     <ProjectSlackChannelsEditor
-                        selectedProject={selectedProject}
+                        selectedProject={projectId}
                         sx={{height: '68vh', marginTop: '15px'}}
                         setApiAlertProps={setApiAlertProps}
                     />

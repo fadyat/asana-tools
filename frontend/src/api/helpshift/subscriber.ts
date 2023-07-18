@@ -1,149 +1,66 @@
-export type Subscriber = {
-    id: number
+import {ApiClient, ApiResponse} from "../client";
+import {helpshiftApiKey} from "../../templates/consts";
+
+
+export type CreateSubscriberDto = {
     name: string
     phone: string
     sms: boolean
     calls: boolean
 }
+export type CreatedSubscriberDto = unknown
 
-export const getLimitSubs = async (
-    helpshiftToolsUrl: string, helpshiftApiKey: string, limitId: number | string
-): Promise<Subscriber[]> => {
-    const projectsEndpoint = `${helpshiftToolsUrl}/api/Subscribers/${limitId}`
+export type UpdateSubscriberDto = CreateSubscriberDto & { id: number }
+export type UpdatedSubscriberDto = unknown
 
-    let response: Response;
-    try {
-        response = await fetch(projectsEndpoint, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Apikey': helpshiftApiKey
+export type DeletedSubscriberDto = unknown
+
+export type Subscriber = UpdateSubscriberDto
+
+export class SubscribersApiClient extends ApiClient {
+
+    async getAll(limitId: number | string): Promise<ApiResponse<Subscriber[]>> {
+        return this._get<Subscriber[]>({
+            endpoint: `/api/Subscribers/${limitId}`,
+            headers: {'Apikey': helpshiftApiKey},
+        })
+    }
+
+    async new(
+        limitId: number | string,
+        subscriber: CreateSubscriberDto
+    ): Promise<ApiResponse<CreatedSubscriberDto>> {
+        return this._post<CreatedSubscriberDto>({
+            endpoint: `/api/Subscribers/${limitId}`,
+            headers: {'Apikey': helpshiftApiKey},
+            body: subscriber,
+            excludeJson: true,
+        })
+    }
+
+    async update(
+        limitId: number | string,
+        subscriber: UpdateSubscriberDto
+    ): Promise<ApiResponse<UpdatedSubscriberDto>> {
+        return this._put<UpdatedSubscriberDto>({
+            endpoint: `/api/Subscribers/${limitId}`,
+            headers: {'Apikey': helpshiftApiKey},
+            body: {
+                ...subscriber,
+                limitId: limitId,
             },
-            credentials: 'include',
-        });
-    } catch (TypeError) {
-        return []
+            excludeJson: true,
+        })
     }
 
-    if (!response.ok) {
-        return []
-    }
-
-    return await response.json()
-}
-
-export type CreateSubscriber = {
-    name: string
-    phone: string
-    sms: boolean
-    calls: boolean
-}
-
-// backend don't return any response, it's just a custom wrapper for
-// rendering error message
-export type CreateSubscriberResponse = {
-    ok: boolean
-    error?: string
-}
-
-export const createSubscriber = async (
-    helpshiftToolsUrl: string,
-    helpshiftApiKey: string,
-    limitId: number | string,
-    subscriber: CreateSubscriber,
-): Promise<CreateSubscriberResponse> => {
-    const subscribersEndpoint = `${helpshiftToolsUrl}/api/Subscribers/${limitId}`
-
-    let response: Response;
-    try {
-        response = await fetch(subscribersEndpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Apikey': helpshiftApiKey,
-            },
-            credentials: 'include',
-            body: JSON.stringify(subscriber),
-        });
-    } catch (TypeError) {
-        return {ok: false, error: 'Network error'}
-    }
-
-    return {
-        ok: response.ok,
-        error: response.ok ? undefined : JSON.stringify(await response.json()),
-    }
-}
-
-// backend don't return any response, it's just a custom wrapper for
-// rendering error message
-export type DeleteSubscriberResponse = {
-    ok: boolean
-    error?: string
-}
-
-export const deleteSubscriber = async (
-    helpshiftToolsUrl: string,
-    helpshiftApiKey: string,
-    limitId: number | string,
-    subscriberId: number | string,
-): Promise<DeleteSubscriberResponse> => {
-    const subscribersEndpoint = `${helpshiftToolsUrl}/api/Subscribers/${limitId}/${subscriberId}`
-
-    let response: Response;
-    try {
-        response = await fetch(subscribersEndpoint, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'Apikey': helpshiftApiKey,
-            },
-            credentials: 'include',
-        });
-    } catch (TypeError) {
-        return {ok: false, error: 'Network error'}
-    }
-
-    return {
-        ok: response.ok,
-        error: response.ok ? undefined : JSON.stringify(await response.json()),
-    }
-}
-
-
-export type UpdateSubscriber = CreateSubscriber & { id: number }
-
-// backend don't return any response, it's just a custom wrapper for
-// rendering error message
-export type UpdateSubscriberResponse = {
-    ok: boolean
-    error?: string
-}
-
-export const updateSubscriber = async (
-    helpshiftToolsUrl: string,
-    helpshiftApiKey: string,
-    limitId: number | string,
-    subscriber: UpdateSubscriber,
-): Promise<UpdateSubscriberResponse> => {
-    const subscribersEndpoint = `${helpshiftToolsUrl}/api/Subscribers/${limitId}`
-
-    let response: Response;
-    try {
-        response = await fetch(subscribersEndpoint, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Apikey': helpshiftApiKey,
-            },
-            credentials: 'include',
-            body: JSON.stringify({...subscriber, limitId: limitId}),
-        });
-    } catch (TypeError) {
-        return {ok: false, error: 'Network error'}
-    }
-
-    return {
-        ok: response.ok,
-        error: response.ok ? undefined : JSON.stringify(await response.json()),
+    async delete(
+        limitId: number | string,
+        subscriberId: number | string
+    ): Promise<ApiResponse<DeletedSubscriberDto>> {
+        return this._delete<DeletedSubscriberDto>({
+            endpoint: `/api/Subscribers/${limitId}/${subscriberId}`,
+            headers: {'Apikey': helpshiftApiKey},
+            excludeJson: true,
+        })
     }
 }
