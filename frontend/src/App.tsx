@@ -35,7 +35,7 @@ const App = () => {
     return (
         <>
             <AppHeader
-                title="Playkot services"
+                title="Serenity in Asana and Helpshift"
                 routesInfo={routesInfo}
             />
 
