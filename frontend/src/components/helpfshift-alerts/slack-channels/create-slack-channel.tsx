@@ -4,6 +4,7 @@ import {helpshiftCreateSlackChannelColumns} from "../../../templates/helpshift-a
 import {ApiAlertProps} from "../../core/api-alert";
 import {CreateSlackChannelDto} from "../../../api/helpshift/slack";
 import {hsClient} from "../../../api/helpshift/client";
+import {validationStatus} from "../../../templates/validate";
 
 
 export type CreateSlackChannelFormProps = {
@@ -12,22 +13,12 @@ export type CreateSlackChannelFormProps = {
     setIsOpen: (v: boolean) => void;
 }
 
-// todo: make it pretty
-const toCreateSlackChannel = (formState: any) => {
-    return {
-        name: formState.name,
-        type: parseInt(formState.type),
-        url: formState.url,
-    }
-}
-
 export const CreateSlackChannelForm = ({selectedProject, setApiAlertProps, setIsOpen}: CreateSlackChannelFormProps) => {
-
-    // todo: make it pretty
-    const [formState, setFormState] = useState({
-        name: '',
-        type: '',
-        url: '',
+    const [channel, setChannel] = useState<CreateSlackChannelDto>({
+        name: '', type: 0, url: ''
+    })
+    const [validationStatus, setValidationStatus] = useState<validationStatus>({
+        name: '', type: '', url: ''
     })
 
     return (
@@ -56,16 +47,24 @@ export const CreateSlackChannelForm = ({selectedProject, setApiAlertProps, setIs
                         return (
                             <TextField
                                 label={field.label}
-                                type='text'
                                 name={field.name}
                                 key={field.name}
                                 placeholder={field.placeholder}
                                 sx={{margin: '5px'}}
-                                value={formState[field.name as keyof CreateSlackChannelDto]}
+                                error={validationStatus[field.name!] !== ''}
+                                helperText={validationStatus[field.name!]}
+                                value={channel[field.name as keyof CreateSlackChannelDto]}
                                 onChange={(e) => {
-                                    setFormState({
-                                        ...formState,
-                                        [field.name!]: e.target.value,
+                                    const {value, err} = field.validate(e.target.value);
+
+                                    setValidationStatus({
+                                        ...validationStatus,
+                                        [field.name!]: err!,
+                                    })
+
+                                    setChannel({
+                                        ...channel,
+                                        [field.name!]: err ? e.target.value : value,
                                     })
                                 }}
                             />
@@ -78,17 +77,36 @@ export const CreateSlackChannelForm = ({selectedProject, setApiAlertProps, setIs
                     type="submit"
                     sx={{margin: '5px'}}
                     onClick={() => {
-                        const dto = toCreateSlackChannel(formState);
+                        const errors = helpshiftCreateSlackChannelColumns.map((field) => {
+                            const {err} = field.validate(channel[field.name as keyof CreateSlackChannelDto]);
+                            return {[field.name!]: err!};
+                        })
 
-                        hsClient.slackChannels.new(selectedProject, dto).then((v) => {
+                        if (errors.some((v) => Object.values(v)[0] !== '')) {
+                            setValidationStatus({
+                                ...validationStatus,
+                                ...errors.reduce((acc, v) => {
+                                    return {...acc, ...v}
+                                }, {})
+                            })
+
+                            setApiAlertProps({
+                                severity: 'error',
+                                message: 'Please fix errors',
+                            })
+
+                            setTimeout(() => setApiAlertProps(null), 5000);
+                            return;
+                        }
+
+                        hsClient.slackChannels.new(selectedProject, channel).then((v) => {
                             if (v.ok) {
                                 setApiAlertProps({
                                     severity: 'success',
-                                    message: 'Ok, refresh page please, not implemented yet',
+                                    message: 'Ok, refresh the page please',
                                 })
 
-                                // todo: update slack channels without page refresh -> \
-                                //      return id from backend first
+                                // todo: update slack channel without page refresh
                                 setIsOpen(false);
                                 return;
                             }

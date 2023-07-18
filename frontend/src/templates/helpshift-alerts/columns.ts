@@ -1,5 +1,6 @@
 import {GridColDef} from "@mui/x-data-grid/models/colDef/gridColDef";
 import {TextFieldProps} from "@mui/material";
+import {parseNumber, valueWithError, parseString, parseUrl} from "../validate";
 
 export const helpshiftCreateLimitsColumns: TextFieldProps[] = [
     {name: 'name', label: 'Name', placeholder: 'Default Limit'},
@@ -45,8 +46,27 @@ export const helpshiftCreateSubscriberColumns: TextFieldProps[] = [
     {name: 'calls', label: 'Calls', placeholder: 'true'},
 ]
 
-export const helpshiftCreateSlackChannelColumns: TextFieldProps[] = [
-    {name: 'name', label: 'Name', placeholder: 'Slack Channel'},
-    {name: 'type', label: 'Type', placeholder: '1'},
-    {name: 'url', label: 'URL', placeholder: 'https://hooks.slack.com/services/...'},
+export type TextFieldPropsWithValidate = TextFieldProps & {
+    validate: (value: any) => valueWithError<any>
+}
+
+export const helpshiftCreateSlackChannelColumns: TextFieldPropsWithValidate[] = [
+    {
+        name: 'name',
+        label: 'Name',
+        placeholder: 'Slack Channel',
+        validate: parseString,
+    },
+    {
+        name: 'type',
+        label: 'Type',
+        placeholder: '1',
+        validate: parseNumber,
+    },
+    {
+        name: 'url',
+        label: 'URL',
+        placeholder: 'https://hooks.slack.com/services/...',
+        validate: parseUrl,
+    },
 ]
