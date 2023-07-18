@@ -1,6 +1,10 @@
 import {Button, FormControl, TextField, Typography} from "@mui/material";
 import React, {useState} from "react";
-import {helpshiftCreateSlackChannelColumns} from "../../../templates/helpshift-alerts/columns";
+import {
+    areErrorsPresent,
+    getErrors,
+    helpshiftCreateSlackChannelColumns, notifyAboutErrors
+} from "../../../templates/helpshift-alerts/columns";
 import {ApiAlertProps} from "../../core/api-alert";
 import {CreateSlackChannelDto} from "../../../api/helpshift/slack";
 import {hsClient} from "../../../api/helpshift/client";
@@ -17,7 +21,7 @@ export const CreateSlackChannelForm = ({selectedProject, setApiAlertProps, setIs
     const [channel, setChannel] = useState<CreateSlackChannelDto>({
         name: '', type: 0, url: ''
     })
-    const [validationStatus, setValidationStatus] = useState<validationStatus>({
+    const [validation, setValidation] = useState<validationStatus>({
         name: '', type: '', url: ''
     })
 
@@ -51,15 +55,15 @@ export const CreateSlackChannelForm = ({selectedProject, setApiAlertProps, setIs
                                 key={field.name}
                                 placeholder={field.placeholder}
                                 sx={{margin: '5px'}}
-                                error={validationStatus[field.name!] !== ''}
-                                helperText={validationStatus[field.name!]}
+                                error={validation[field.name!] !== ''}
+                                helperText={validation[field.name!]}
                                 value={channel[field.name as keyof CreateSlackChannelDto]}
                                 onChange={(e) => {
                                     const {value, err} = field.validate(e.target.value);
 
-                                    setValidationStatus({
-                                        ...validationStatus,
-                                        [field.name!]: err!,
+                                    setValidation({
+                                        ...validation,
+                                        [field.name!]: err,
                                     })
 
                                     setChannel({
@@ -77,25 +81,8 @@ export const CreateSlackChannelForm = ({selectedProject, setApiAlertProps, setIs
                     type="submit"
                     sx={{margin: '5px'}}
                     onClick={() => {
-                        const errors = helpshiftCreateSlackChannelColumns.map((field) => {
-                            const {err} = field.validate(channel[field.name as keyof CreateSlackChannelDto]);
-                            return {[field.name!]: err!};
-                        })
-
-                        if (errors.some((v) => Object.values(v)[0] !== '')) {
-                            setValidationStatus({
-                                ...validationStatus,
-                                ...errors.reduce((acc, v) => {
-                                    return {...acc, ...v}
-                                }, {})
-                            })
-
-                            setApiAlertProps({
-                                severity: 'error',
-                                message: 'Please fix errors',
-                            })
-
-                            setTimeout(() => setApiAlertProps(null), 5000);
+                        const errors = getErrors<CreateSlackChannelDto>(helpshiftCreateSlackChannelColumns, channel);
+                        if (notifyAboutErrors(errors, validation, setValidation, setApiAlertProps)) {
                             return;
                         }
 
@@ -103,7 +90,7 @@ export const CreateSlackChannelForm = ({selectedProject, setApiAlertProps, setIs
                             if (v.ok) {
                                 setApiAlertProps({
                                     severity: 'success',
-                                    message: 'Ok, refresh the page please',
+                                    message: 'Ok, refresh the page, please',
                                 })
 
                                 // todo: update slack channel without page refresh

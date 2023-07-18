@@ -1,9 +1,12 @@
 import {Button, FormControl, TextField, Typography} from "@mui/material";
 import React, {useState} from "react";
-import {helpshiftCreateSubscriberColumns} from "../../../templates/helpshift-alerts/columns";
+import {
+    getErrors, helpshiftCreateSubscriberColumns, notifyAboutErrors
+} from "../../../templates/helpshift-alerts/columns";
 import {CreateSubscriberDto} from "../../../api/helpshift/subscriber";
 import {ApiAlertProps} from "../../core/api-alert";
 import {hsClient} from "../../../api/helpshift/client";
+import {validationStatus} from "../../../templates/validate";
 
 
 export type CreateProjectSubFormProps = {
@@ -12,34 +15,12 @@ export type CreateProjectSubFormProps = {
     setApiAlertProps: (v: ApiAlertProps | null) => void,
 }
 
-const parseBool = (v: string | boolean): boolean => {
-    if (typeof v === 'boolean') {
-        return v;
-    }
-
-    v = v.toLowerCase();
-    return v === 'true' || v === '1' || v === 'yes' || v === 'y' || v === 'on' || v === 't';
-}
-
-// todo: make it pretty
-const toCreateSubscriber = (formState: any) => {
-
-    return {
-        name: formState.name,
-        phone: formState.phone,
-        sms: parseBool(formState.sms),
-        calls: parseBool(formState.calls),
-    }
-}
-
 export const CreateLimitSub = ({setIsOpen, limitId, setApiAlertProps}: CreateProjectSubFormProps) => {
-
-    // todo: make it pretty
-    const [formState, setFormState] = useState({
-        name: '',
-        phone: '',
-        sms: true,
-        calls: true,
+    const [subscriber, setSubscriber] = useState<CreateSubscriberDto>({
+        name: '', phone: '', sms: true, calls: true,
+    })
+    const [validation, setValidation] = useState<validationStatus>({
+        name: '', phone: '', sms: '', calls: '',
     })
 
     return (
@@ -72,12 +53,21 @@ export const CreateLimitSub = ({setIsOpen, limitId, setApiAlertProps}: CreatePro
                                 name={field.name}
                                 key={field.name}
                                 placeholder={field.placeholder}
+                                error={validation[field.name!] !== ''}
+                                helperText={validation[field.name!]}
                                 sx={{margin: '5px'}}
-                                value={formState[field.name as keyof CreateSubscriberDto]}
+                                value={subscriber[field.name as keyof CreateSubscriberDto]}
                                 onChange={(e) => {
-                                    setFormState({
-                                        ...formState,
-                                        [field.name!]: e.target.value,
+                                    const {value, err} = field.validate(e.target.value);
+
+                                    setValidation({
+                                        ...validation,
+                                        [field.name!]: err,
+                                    })
+
+                                    setSubscriber({
+                                        ...subscriber,
+                                        [field.name!]: err ? e.target.value : value,
                                     })
                                 }}
                             />
@@ -90,18 +80,19 @@ export const CreateLimitSub = ({setIsOpen, limitId, setApiAlertProps}: CreatePro
                     type="submit"
                     sx={{margin: '5px'}}
                     onClick={() => {
-                        const dto = toCreateSubscriber(formState);
+                        const errors = getErrors<CreateSubscriberDto>(helpshiftCreateSubscriberColumns, subscriber);
+                        if (notifyAboutErrors(errors, validation, setValidation, setApiAlertProps)) {
+                            return;
+                        }
 
-                        hsClient.subscribers.new(limitId, dto).then((v) => {
+                        hsClient.subscribers.new(limitId, subscriber).then((v) => {
                             if (v.ok) {
                                 setApiAlertProps({
                                     severity: 'success',
-                                    message: 'Ok, refresh page please, not implemented yet',
+                                    message: 'Ok, refresh the page, please',
                                 })
 
-                                // todo: update subscriber without page refresh -> \
-                                //      return id from backend first
-
+                                // todo: update project subscribers without page refresh
                                 setIsOpen(false);
                                 return;
                             }

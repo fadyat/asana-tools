@@ -25,6 +25,22 @@ export const parseString: parser<string> = (value: string): valueWithError<strin
     return {value: value, err: ''}
 }
 
+export const parsePhoneNumber: parser<string> = (value: string): valueWithError<string> => {
+    if (value.length === 0) return {err: 'Empty string is not allowed'}
+
+    const phoneRegex = /^\+?[1-9]\d{8,14}$/
+    return phoneRegex.test(value) ? {value: value, err: ''} : {err: 'Not a valid phone number'}
+}
+
+export const parseBoolean: parser<boolean> = (value: string): valueWithError<boolean> => {
+    const v = `${value}`.toLowerCase()
+
+    if (v === 'true') return {value: true, err: ''}
+    if (v === 'false') return {value: false, err: ''}
+
+    return {err: 'true/false expected'}
+}
+
 export const parseUrl: parser<string> = (value: string): valueWithError<string> => {
     try {
         new URL(value)

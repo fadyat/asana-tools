@@ -1,6 +1,57 @@
 import {GridColDef} from "@mui/x-data-grid/models/colDef/gridColDef";
 import {TextFieldProps} from "@mui/material";
-import {parseNumber, valueWithError, parseString, parseUrl} from "../validate";
+import {
+    parseNumber,
+    valueWithError,
+    parseString,
+    parseUrl,
+    validationStatus,
+    parsePhoneNumber,
+    parseBoolean
+} from "../validate";
+import {SetStateAction} from "react";
+import {ApiAlertProps} from "../../components/core/api-alert";
+
+export type TextFieldPropsWithValidate = TextFieldProps & {
+    validate: (value: any) => valueWithError<any>
+}
+
+export function getErrors<T>(columns: TextFieldPropsWithValidate[], values: T): validationStatus[] {
+    return columns.map((field) => {
+        const {err} = field.validate(values[field.name as keyof T]);
+        return {[field.name!]: err}
+    })
+}
+
+export function areErrorsPresent(errors: validationStatus[]): boolean {
+    return errors.some((error) => Object.values(error)[0] !== '')
+}
+
+export function notifyAboutErrors(
+    errors: validationStatus[],
+    validation: validationStatus,
+    setValidation: (value: SetStateAction<validationStatus>) => void,
+    setApiAlertProps: (value: ApiAlertProps | null) => void
+): boolean {
+    if (areErrorsPresent(errors)) {
+        setValidation({
+            ...validation,
+            ...errors.reduce((acc, v) => {
+                return {...acc, ...v}
+            }, {})
+        })
+
+        setApiAlertProps({
+            severity: 'error',
+            message: 'Please fix errors',
+        })
+
+        setTimeout(() => setApiAlertProps(null), 5000);
+        return true
+    }
+
+    return false
+}
 
 export const helpshiftCreateLimitsColumns: TextFieldProps[] = [
     {name: 'name', label: 'Name', placeholder: 'Default Limit'},
@@ -39,16 +90,32 @@ export const helpshiftLimitsSubscriberColumns: GridColDef[] = [
     {field: 'calls', headerName: 'Calls', width: 150, editable: true, type: 'boolean'},
 ]
 
-export const helpshiftCreateSubscriberColumns: TextFieldProps[] = [
-    {name: 'name', label: 'Name', placeholder: 'Ryan Gosling'},
-    {name: 'phone', label: 'Phone', placeholder: '+88005553535'},
-    {name: 'sms', label: 'SMS', placeholder: 'true'},
-    {name: 'calls', label: 'Calls', placeholder: 'true'},
+export const helpshiftCreateSubscriberColumns: TextFieldPropsWithValidate[] = [
+    {
+        name: 'name',
+        label: 'Name',
+        placeholder: 'Ryan Gosling',
+        validate: parseString,
+    },
+    {
+        name: 'phone',
+        label: 'Phone',
+        placeholder: '+88005553535',
+        validate: parsePhoneNumber,
+    },
+    {
+        name: 'sms',
+        label: 'SMS',
+        placeholder: 'true',
+        validate: parseBoolean,
+    },
+    {
+        name: 'calls',
+        label: 'Calls',
+        placeholder: 'true',
+        validate: parseBoolean,
+    },
 ]
-
-export type TextFieldPropsWithValidate = TextFieldProps & {
-    validate: (value: any) => valueWithError<any>
-}
 
 export const helpshiftCreateSlackChannelColumns: TextFieldPropsWithValidate[] = [
     {

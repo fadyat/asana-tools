@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Dialog, Fab, List, ListItem, Typography} from "@mui/material";
+import {Box, Dialog, DialogContentText, Fab, List, ListItem, Typography} from "@mui/material";
 import {Close, QuestionMark} from "@mui/icons-material";
 import "./page-description.css"
 
@@ -11,20 +11,24 @@ export type PageDescriptionProps = {
 
 const ActualPageDescription = ({title, points}: PageDescriptionProps) => {
     return (
-        <Typography className="page-description-content">
-            <Typography variant='h5'>{title}</Typography>
+        <Box className="page-description-content">
+            <Typography component={'span'}
+                        variant={'h5'}
+            >
+                {title}
+            </Typography>
             <List>
                 {
                     points.map((point, index) => (
                         <ListItem key={index}
-                            className="page-description-point"
+                                  className="page-description-point"
                         >
                             {point}
                         </ListItem>
                     ))
                 }
             </List>
-        </Typography>
+        </Box>
     )
 }
 
@@ -32,7 +36,7 @@ const PageDescription = ({title, points}: PageDescriptionProps) => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <div className="page-description">
+        <Box className="page-description">
             <Fab color="primary"
                  aria-label="add"
                  onClick={() => setIsOpen(!isOpen)}
@@ -56,7 +60,7 @@ const PageDescription = ({title, points}: PageDescriptionProps) => {
                     points={points}
                 />
             </Dialog>
-        </div>
+        </Box>
     )
 }
 
