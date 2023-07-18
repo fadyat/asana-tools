@@ -175,7 +175,7 @@ export const RenderSubscribers = ({limitId, setApiAlertProps}: RenderSubscribers
                     columns={columns}
                     getRowId={(sub) => sub.id}
                     sx={{minHeight: '300px'}}
-                    onCellEditStop={(params) => {
+                    onCellClick={(params) => {
                         setRowId(params.id as number);
                     }}
                 />

@@ -64,7 +64,6 @@ export const toProjectLimit = (row: GridRowModel): Limit => {
 
 const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLimitsEditorProps) => {
     const [projectLimits, setProjectLimits] = useState<Limit[]>([]);
-    const [paginationModel, setPaginationModel] = useState({page: 0, pageSize: 25})
     const [currentRowId, setCurrentRowId] = useState<number | null>(null);
     const [isSubsOpen, setIsSubsOpen] = useState(false);
 
@@ -158,9 +157,7 @@ const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLim
                 rows={projectLimits}
                 columns={columns}
                 getRowId={(projectLimit) => projectLimit.id}
-                paginationModel={paginationModel}
-                onPaginationModelChange={setPaginationModel}
-                onCellEditStop={(params) => {
+                onCellClick={(params) => {
                     setCurrentRowId(params.id as number);
                 }}
             />

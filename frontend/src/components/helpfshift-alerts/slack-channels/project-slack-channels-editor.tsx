@@ -43,7 +43,6 @@ const ProjectSlackChannelsEditor = (
     {selectedProject, sx, setApiAlertProps}: ProjectSlackChannelsEditorProps
 ) => {
     const [projectSlackChannels, setProjectSlackChannels] = useState<SlackChannel[]>([]);
-    const [paginationModel, setPaginationModel] = useState({page: 0, pageSize: 25,})
     const [currentRowId, setCurrentRowId] = useState<number | null>(null);
 
     useEffect(() => {
@@ -132,9 +131,7 @@ const ProjectSlackChannelsEditor = (
                 rows={projectSlackChannels}
                 columns={columns}
                 getRowId={(channel) => channel.id}
-                paginationModel={paginationModel}
-                onPaginationModelChange={setPaginationModel}
-                onCellEditStart={(params) => {
+                onCellClick={(params) => {
                     setCurrentRowId(params.id as number);
                 }}
             />
