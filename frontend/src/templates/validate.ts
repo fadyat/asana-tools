@@ -52,10 +52,50 @@ export const parseUrl: parser<string> = (value: string): valueWithError<string> 
 
 export const parseNumber: parser<number> = (value: string): valueWithError<number> => {
     if (value === '') {
-        return {err: 'Not a number'}
+        return {err: `\`${value}\` is not a number`}
     }
 
+    const numberRegex = /^-?\d+\.?\d*$/
+    if (!numberRegex.test(value)) {
+        return {err: `\`${value}\` is not a number`}
+    }
 
-    const parsed = Number(value)
-    return isNaN(parsed) ? {err: 'Not a number'} : {value: parsed, err: ''}
+    return {value: Number(value), err: ''}
+}
+
+export const parseMoreThanZeroNumber: parser<number> = (value: string): valueWithError<number> => {
+    const {value: parsed, err} = parseNumber(value)
+    if (err !== '') {
+        return {err: err}
+    }
+
+    if (parsed! <= 0) {
+        return {err: 'Value must be more than 0'}
+    }
+
+    return {value: parsed!, err: ''}
+}
+
+export const parseArrayOfNumbers: parser<number[]> = (value: string): valueWithError<number[]> => {
+    value = value.toString()
+    if (value === '') {
+        return {err: 'Empty array is not allowed'}
+    }
+
+    const parsed = value.split(',').map((v) => parseNumber(v))
+    const notANumbers = parsed.filter((v) => v.err !== '').map((v) => v.err)
+
+    const errMsg = notANumbers.join(', ')
+    return errMsg ? {err: errMsg} :
+        {value: parsed.map((v) => v.value!), err: ''}
+}
+
+export const parseTimeString: parser<string> = (value: string): valueWithError<string> => {
+    const dateRegex = /^\d{2}:\d{2}:\d{2}$/
+
+    if (!dateRegex.test(value)) {
+        return {err: 'Not a valid date'}
+    }
+
+    return {value: value, err: ''}
 }

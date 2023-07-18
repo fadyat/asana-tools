@@ -37,7 +37,6 @@ export const toUpdateProjectLimit = (row: GridRowModel): UpdateLimitDto => {
         isEnabled: row.isEnabled,
         smsLimit: row.smsLimit,
         callLimit: row.callLimit,
-        projectId: row.projectId
     }
 }
 
@@ -58,7 +57,6 @@ export const toProjectLimit = (row: GridRowModel): Limit => {
         isEnabled: row.isEnabled,
         smsLimit: row.smsLimit,
         callLimit: row.callLimit,
-        projectId: row.projectId,
         subscribers: row.subscribers
     }
 }
@@ -96,7 +94,7 @@ const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLim
                                 onClickFunc={(params: GridCellParams) => {
                                     const dto = toUpdateProjectLimit(params.row);
 
-                                    hsClient.limits.update(dto).then((v) => {
+                                    hsClient.limits.update(selectedProject, dto).then((v) => {
                                         if (v.ok) {
                                             setApiAlertProps({
                                                 severity: 'success',

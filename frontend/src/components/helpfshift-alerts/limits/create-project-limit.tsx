@@ -1,9 +1,10 @@
 import {Button, FormControl, TextField, Typography} from "@mui/material";
 import React, {useState} from "react";
 import {CreateLimitDto} from "../../../api/helpshift/limit";
-import {helpshiftCreateLimitsColumns} from "../../../templates/helpshift-alerts/columns";
+import {getErrors, helpshiftCreateLimitsColumns, notifyAboutErrors} from "../../../templates/helpshift-alerts/columns";
 import {ApiAlertProps} from "../../core/api-alert";
 import {hsClient} from "../../../api/helpshift/client";
+import {validationStatus} from "../../../templates/validate";
 
 
 export type CreateProjectLimitFormProps = {
@@ -12,36 +13,14 @@ export type CreateProjectLimitFormProps = {
     setIsOpen: (v: boolean) => void;
 }
 
-// todo: make it pretty
-const toCreateProjectLimit = (formState: any) => {
-    return {
-        name: formState.name,
-        daysOfWeek: formState.daysOfWeek.split(',').map((day: string) => parseInt(day)),
-        timeOfDay: formState.timeOfDay,
-        duration: formState.duration,
-        pollingInterval: formState.pollingInterval,
-        smsLimit: parseInt(formState.smsLimit) || 0,
-        callLimit: parseInt(formState.callLimit) || 0,
-
-        isEnabled: formState.isEnabled,
-        projectId: formState.projectId,
-    }
-}
-
 export const CreateProjectLimitForm = ({selectedProject, setApiAlertProps, setIsOpen}: CreateProjectLimitFormProps) => {
-
-    // todo: make it pretty
-    const [formState, setFormState] = useState({
-        name: '',
-        daysOfWeek: '',
-        timeOfDay: '',
-        duration: '',
-        pollingInterval: '',
-        smsLimit: 0,
-        callLimit: 0,
-
-        isEnabled: true,
-        projectId: selectedProject,
+    const [limit, setLimit] = useState<CreateLimitDto>({
+        name: '', daysOfWeek: [], timeOfDay: '', duration: '', pollingInterval: '',
+        smsLimit: 1, callLimit: 1, isEnabled: true,
+    })
+    const [validation, setValidation] = useState<validationStatus>({
+        name: '', daysOfWeek: '', timeOfDay: '', duration: '', pollingInterval: '',
+        smsLimit: '', callLimit: '', isEnabled: '',
     })
 
     return (
@@ -73,13 +52,21 @@ export const CreateProjectLimitForm = ({selectedProject, setApiAlertProps, setIs
                                 type='text'
                                 name={field.name}
                                 key={field.name}
+                                error={validation[field.name!] !== ''}
+                                helperText={validation[field.name!]}
                                 placeholder={field.placeholder}
                                 sx={{margin: '5px'}}
-                                value={formState[field.name as keyof CreateLimitDto]}
+                                value={limit[field.name as keyof CreateLimitDto]}
                                 onChange={(e) => {
-                                    setFormState({
-                                        ...formState,
-                                        [field.name!]: e.target.value,
+                                    const {value, err} = field.validate(e.target.value);
+
+                                    setValidation({
+                                        ...validation, [field.name!]: '',
+                                    })
+
+                                    setLimit({
+                                        ...limit,
+                                        [field.name!]: err ? e.target.value : value,
                                     })
                                 }}
                             />
@@ -92,17 +79,19 @@ export const CreateProjectLimitForm = ({selectedProject, setApiAlertProps, setIs
                     type="submit"
                     sx={{margin: '5px'}}
                     onClick={() => {
-                        const dto = toCreateProjectLimit(formState);
+                        const errors = getErrors<CreateLimitDto>(helpshiftCreateLimitsColumns, limit);
+                        if (notifyAboutErrors(errors, validation, setValidation, setApiAlertProps)) {
+                            return;
+                        }
 
-                        hsClient.limits.new(dto).then((r) => {
+                        hsClient.limits.new(selectedProject, limit).then((r) => {
                             if (r.ok) {
                                 setApiAlertProps({
                                     severity: 'success',
-                                    message: 'Ok, refresh page please, not implemented yet',
+                                    message: 'Ok, refresh the page, please',
                                 })
 
-                                // todo: update limits without page refresh (add new limit to the list)
-                                //  does backend support it?
+                                // todo: update limits without page refresh
                                 setIsOpen(false);
                                 return;
                             }

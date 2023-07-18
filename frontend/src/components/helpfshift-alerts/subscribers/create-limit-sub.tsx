@@ -61,8 +61,7 @@ export const CreateLimitSub = ({setIsOpen, limitId, setApiAlertProps}: CreatePro
                                     const {value, err} = field.validate(e.target.value);
 
                                     setValidation({
-                                        ...validation,
-                                        [field.name!]: err,
+                                        ...validation, [field.name!]: '',
                                     })
 
                                     setSubscriber({

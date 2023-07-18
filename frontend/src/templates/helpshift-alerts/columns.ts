@@ -7,7 +7,7 @@ import {
     parseUrl,
     validationStatus,
     parsePhoneNumber,
-    parseBoolean
+    parseBoolean, parseArrayOfNumbers, parseTimeString, parseMoreThanZeroNumber
 } from "../validate";
 import {SetStateAction} from "react";
 import {ApiAlertProps} from "../../components/core/api-alert";
@@ -53,16 +53,6 @@ export function notifyAboutErrors(
     return false
 }
 
-export const helpshiftCreateLimitsColumns: TextFieldProps[] = [
-    {name: 'name', label: 'Name', placeholder: 'Default Limit'},
-    {name: 'daysOfWeek', label: 'Days of Week', placeholder: '1,2,3,4,5'},
-    {name: 'timeOfDay', label: 'Time of Day', placeholder: '00:00:00'},
-    {name: 'duration', label: 'Duration', placeholder: '00:00:00'},
-    {name: 'pollingInterval', label: 'Polling Interval', placeholder: '00:00:00'},
-    {name: 'smsLimit', label: 'SMS Limit', placeholder: '10'},
-    {name: 'callLimit', label: 'Call Limit', placeholder: '10'}
-]
-
 export const helpshiftLimitsColumns: GridColDef[] = [
     {field: 'id', headerName: 'ID', width: 75, type: 'number'},
     {field: 'name', headerName: 'Name', width: 150, editable: true},
@@ -88,6 +78,57 @@ export const helpshiftLimitsSubscriberColumns: GridColDef[] = [
     {field: 'phone', headerName: 'Phone', width: 150, editable: true},
     {field: 'sms', headerName: 'SMS', width: 150, editable: true, type: 'boolean'},
     {field: 'calls', headerName: 'Calls', width: 150, editable: true, type: 'boolean'},
+]
+
+export const helpshiftCreateLimitsColumns: TextFieldPropsWithValidate[] = [
+    {
+        name: 'name',
+        label: 'Name',
+        placeholder: 'Default Limit',
+        validate: parseString,
+    },
+    {
+        name: 'daysOfWeek',
+        label: 'Days of Week',
+        placeholder: '1,2,3,4,5',
+        validate: parseArrayOfNumbers,
+    },
+    {
+        name: 'timeOfDay',
+        label: 'Time of Day',
+        placeholder: '00:00:00',
+        validate: parseTimeString,
+    },
+    {
+        name: 'duration',
+        label: 'Duration',
+        placeholder: '00:00:00',
+        validate: parseTimeString,
+    },
+    {
+        name: 'pollingInterval',
+        label: 'Polling Interval',
+        placeholder: '00:00:00',
+        validate: parseTimeString,
+    },
+    {
+        name: 'smsLimit',
+        label: 'SMS Limit',
+        placeholder: '10',
+        validate: parseMoreThanZeroNumber,
+    },
+    {
+        name: 'callLimit',
+        label: 'Call Limit',
+        placeholder: '10',
+        validate: parseMoreThanZeroNumber,
+    },
+    {
+        name: 'isEnabled',
+        label: 'Enabled',
+        placeholder: 'true',
+        validate: parseBoolean,
+    }
 ]
 
 export const helpshiftCreateSubscriberColumns: TextFieldPropsWithValidate[] = [

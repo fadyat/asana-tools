@@ -62,8 +62,7 @@ export const CreateSlackChannelForm = ({selectedProject, setApiAlertProps, setIs
                                     const {value, err} = field.validate(e.target.value);
 
                                     setValidation({
-                                        ...validation,
-                                        [field.name!]: err,
+                                        ...validation, [field.name!]: '',
                                     })
 
                                     setChannel({

@@ -12,7 +12,6 @@ export type CreateLimitDto = {
     isEnabled: boolean
     smsLimit: number
     callLimit: number
-    projectId: number
 }
 export type CreatedLimitDto = { id: number }
 
@@ -41,19 +40,25 @@ export class LimitApiClient extends ApiClient {
         })
     }
 
-    async new(limit: CreateLimitDto): Promise<ApiResponse<CreatedLimitDto>> {
+    async new(projectId: number | string, limit: CreateLimitDto): Promise<ApiResponse<CreatedLimitDto>> {
         return await this._post<CreatedLimitDto>({
-            endpoint: `/api/Limits/${limit.projectId}`,
+            endpoint: `/api/Limits/${projectId}`,
             headers: {'Apikey': helpshiftApiKey},
-            body: limit
+            body: {
+                ...limit,
+                projectId: projectId
+            }
         })
     }
 
-    async update(limit: UpdateLimitDto): Promise<ApiResponse<UpdatedLimitDto>> {
+    async update(projectId: string | number, limit: UpdateLimitDto): Promise<ApiResponse<UpdatedLimitDto>> {
         return await this._put<UpdateLimitDto>({
-            endpoint: `/api/Limits/${limit.projectId}`,
+            endpoint: `/api/Limits/${projectId}`,
             headers: {'Apikey': helpshiftApiKey},
-            body: limit,
+            body: {
+                ...limit,
+                projectId: projectId
+            },
             excludeJson: true
         })
     }
