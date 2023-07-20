@@ -131,7 +131,7 @@ const ProjectSlackChannelsEditor = (
                 rows={projectSlackChannels}
                 columns={columns}
                 getRowId={(channel) => channel.id}
-                onCellClick={(params) => {
+                onCellEditStop={(params) => {
                     setCurrentRowId(params.id as number);
                 }}
             />

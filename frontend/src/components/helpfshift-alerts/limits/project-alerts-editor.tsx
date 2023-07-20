@@ -157,7 +157,7 @@ const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLim
                 rows={projectLimits}
                 columns={columns}
                 getRowId={(projectLimit) => projectLimit.id}
-                onCellClick={(params) => {
+                onCellEditStop={(params) => {
                     setCurrentRowId(params.id as number);
                 }}
             />
