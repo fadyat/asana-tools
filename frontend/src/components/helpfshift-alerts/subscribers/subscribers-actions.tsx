@@ -71,7 +71,8 @@ const toSubscriber = (row: GridRowModel): Subscriber => {
 }
 
 export const RenderSubscribers = ({limitId, setApiAlertProps}: RenderSubscribersProps) => {
-    const [rowId, setRowId] = useState<number | null>(null);
+    const [saveRowId, setSaveRowId] = useState<number | null>(null);
+    const [deleteRowId, setDeleteRowId] = useState<number | null>(null);
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [subs, setSubs] = useState<Subscriber[]>([]);
 
@@ -97,8 +98,8 @@ export const RenderSubscribers = ({limitId, setApiAlertProps}: RenderSubscribers
             renderCell: (params: GridCellParams) => {
                 return <>
                     <SaveAction params={params}
-                                rowId={rowId}
-                                setRowId={setRowId}
+                                rowId={saveRowId}
+                                setRowId={setSaveRowId}
                                 onClickFunc={(_) => {
                                     const dto = toUpdatedSubscriber(params.row);
 
@@ -130,8 +131,8 @@ export const RenderSubscribers = ({limitId, setApiAlertProps}: RenderSubscribers
                     />
 
                     <DeleteAction params={params}
-                                  rowId={rowId}
-                                  setRowId={setRowId}
+                                  rowId={deleteRowId}
+                                  setRowId={setDeleteRowId}
                                   onClickFunc={() => {
                                       const subId = params.row.id;
 
@@ -176,7 +177,10 @@ export const RenderSubscribers = ({limitId, setApiAlertProps}: RenderSubscribers
                     getRowId={(sub) => sub.id}
                     sx={{minHeight: '300px'}}
                     onCellEditStop={(params) => {
-                        setRowId(params.id as number);
+                        setSaveRowId(params.id as number);
+                    }}
+                    onCellClick={(params) => {
+                        setDeleteRowId(params.id as number);
                     }}
                 />
             }

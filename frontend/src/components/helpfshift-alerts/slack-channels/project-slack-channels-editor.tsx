@@ -39,11 +39,10 @@ const toSlackChannel = (row: GridRowModel): SlackChannel => {
     }
 }
 
-const ProjectSlackChannelsEditor = (
-    {selectedProject, sx, setApiAlertProps}: ProjectSlackChannelsEditorProps
-) => {
+const ProjectSlackChannelsEditor = ({selectedProject, sx, setApiAlertProps}: ProjectSlackChannelsEditorProps) => {
     const [projectSlackChannels, setProjectSlackChannels] = useState<SlackChannel[]>([]);
-    const [currentRowId, setCurrentRowId] = useState<number | null>(null);
+    const [saveRowId, setSaveRowId] = useState<number | null>(null);
+    const [deleteRowId, setDeleteRowId] = useState<number | null>(null);
 
     useEffect(() => {
         hsClient.slackChannels.getAll(selectedProject).then((r) => {
@@ -66,8 +65,8 @@ const ProjectSlackChannelsEditor = (
             renderCell: (params: GridCellParams) => {
                 return <>
                     <SaveAction params={params}
-                                rowId={currentRowId}
-                                setRowId={setCurrentRowId}
+                                rowId={saveRowId}
+                                setRowId={setSaveRowId}
                                 onClickFunc={() => {
                                     const dto = toUpdatedSlackChannel(params.row);
 
@@ -94,8 +93,8 @@ const ProjectSlackChannelsEditor = (
                                 }}
                     />
                     <DeleteAction params={params}
-                                  rowId={currentRowId}
-                                  setRowId={setCurrentRowId}
+                                  rowId={deleteRowId}
+                                  setRowId={setDeleteRowId}
                                   onClickFunc={() => {
                                       const [projectId, channelId] = [selectedProject, params.row.id];
 
@@ -132,7 +131,10 @@ const ProjectSlackChannelsEditor = (
                 columns={columns}
                 getRowId={(channel) => channel.id}
                 onCellEditStop={(params) => {
-                    setCurrentRowId(params.id as number);
+                    setSaveRowId(params.id as number);
+                }}
+                onCellClick={(params) => {
+                    setDeleteRowId(params.id as number);
                 }}
             />
         </Box>

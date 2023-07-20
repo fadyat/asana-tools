@@ -64,7 +64,9 @@ export const toProjectLimit = (row: GridRowModel): Limit => {
 
 const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLimitsEditorProps) => {
     const [projectLimits, setProjectLimits] = useState<Limit[]>([]);
-    const [currentRowId, setCurrentRowId] = useState<number | null>(null);
+    const [saveRowId, setSaveRowId] = useState<number | null>(null);
+    const [deleteRowId, setDeleteRowId] = useState<number | null>(null);
+    const [subsRowId, setSubsRowId] = useState<number | null>(null);
     const [isSubsOpen, setIsSubsOpen] = useState(false);
 
     useEffect(() => {
@@ -78,7 +80,7 @@ const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLim
         })
     }, [selectedProject]);
 
-    const columns = useMemo(() => [
+    const columns = [
         ...helpshiftLimitsColumns,
         {
             field: 'actions',
@@ -88,8 +90,8 @@ const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLim
             renderCell: (params: GridCellParams) => {
                 return <>
                     <SaveAction params={params}
-                                rowId={currentRowId}
-                                setRowId={setCurrentRowId}
+                                rowId={saveRowId}
+                                setRowId={setSaveRowId}
                                 onClickFunc={(params: GridCellParams) => {
                                     const dto = toUpdateProjectLimit(params.row);
 
@@ -116,8 +118,8 @@ const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLim
                                 }}
                     />
                     <DeleteAction params={params}
-                                  rowId={currentRowId}
-                                  setRowId={setCurrentRowId}
+                                  rowId={deleteRowId}
+                                  setRowId={setDeleteRowId}
                                   onClickFunc={(params: GridCellParams) => {
                                       const [projectId, limitId] = [selectedProject, params.row.id];
 
@@ -143,13 +145,12 @@ const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLim
                     <SubsAction params={params}
                                 onClickFunc={(params: GridCellParams) => {
                                     setIsSubsOpen(true);
-                                    setCurrentRowId(params.row.id as number);
+                                    setSubsRowId(params.row.id as number);
                                 }}
                     />
                 </>
             },
-        }
-    ], [currentRowId]);
+        }]
 
     return (
         <Box sx={{...sx}}>
@@ -158,14 +159,17 @@ const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLim
                 columns={columns}
                 getRowId={(projectLimit) => projectLimit.id}
                 onCellEditStop={(params) => {
-                    setCurrentRowId(params.id as number);
+                    setSaveRowId(params.id as number);
+                }}
+                onCellClick={(params) => {
+                    setDeleteRowId(params.id as number);
                 }}
             />
 
             <Dialog open={isSubsOpen}
                     onClose={() => {
                         setIsSubsOpen(false)
-                        setCurrentRowId(null)
+                        setSubsRowId(null)
                     }}
                     sx={{
                         "& .MuiDialog-container": {
@@ -176,7 +180,7 @@ const ProjectLimitsEditor = ({setApiAlertProps, selectedProject, sx}: ProjectLim
                     }}
             >
                 {/* when clicking to a human icon, currentRowId is set to the limit id */}
-                <RenderSubscribers limitId={currentRowId!}
+                <RenderSubscribers limitId={subsRowId!}
                                    setApiAlertProps={setApiAlertProps}
                 />
 
