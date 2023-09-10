@@ -45,7 +45,7 @@ const ProjectSlackChannelsEditor = ({selectedProject, sx, setApiAlertProps}: Pro
     const [deleteRowId, setDeleteRowId] = useState<number | null>(null);
 
     useEffect(() => {
-        hsClient.slackChannels.getAll(selectedProject).then((r) => {
+        hsClient.slackChannels.getAllByProjectID(selectedProject).then((r) => {
             if (!r.ok) {
                 console.error(`Failed to get slack channels ${r.error}`);
                 return
@@ -70,7 +70,7 @@ const ProjectSlackChannelsEditor = ({selectedProject, sx, setApiAlertProps}: Pro
                                 onClickFunc={() => {
                                     const dto = toUpdatedSlackChannel(params.row);
 
-                                    hsClient.slackChannels.update(selectedProject, dto).then((v) => {
+                                    hsClient.slackChannels.updateForProject(selectedProject, dto).then((v) => {
                                         if (v.ok) {
                                             setApiAlertProps({
                                                 severity: 'success',
@@ -98,7 +98,7 @@ const ProjectSlackChannelsEditor = ({selectedProject, sx, setApiAlertProps}: Pro
                                   onClickFunc={() => {
                                       const [projectId, channelId] = [selectedProject, params.row.id];
 
-                                      hsClient.slackChannels.delete(projectId, channelId).then((v) => {
+                                      hsClient.slackChannels.deleteForProject(projectId, channelId).then((v) => {
                                           if (v.ok) {
                                               setApiAlertProps({
                                                   severity: 'success',

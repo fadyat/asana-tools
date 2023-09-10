@@ -12,6 +12,8 @@ export type CreateLimitDto = {
     isEnabled: boolean
     smsLimit: number
     callLimit: number
+    slackChannelName: string
+    slackLimit: number
 }
 export type CreatedLimitDto = { id: number }
 

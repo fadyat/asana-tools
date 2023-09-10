@@ -1,9 +1,9 @@
 import {Button, FormControl, TextField, Typography} from "@mui/material";
 import React, {useState} from "react";
 import {
-    areErrorsPresent,
     getErrors,
-    helpshiftCreateSlackChannelColumns, notifyAboutErrors
+    helpshiftCreateSlackChannelColumns,
+    notifyAboutErrors
 } from "../../../templates/helpshift-alerts/columns";
 import {ApiAlertProps} from "../../core/api-alert";
 import {CreateSlackChannelDto} from "../../../api/helpshift/slack";
@@ -85,7 +85,7 @@ export const CreateSlackChannelForm = ({selectedProject, setApiAlertProps, setIs
                             return;
                         }
 
-                        hsClient.slackChannels.new(selectedProject, channel).then((v) => {
+                        hsClient.slackChannels.newForProject(selectedProject, channel).then((v) => {
                             if (v.ok) {
                                 setApiAlertProps({
                                     severity: 'success',

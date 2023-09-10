@@ -63,6 +63,8 @@ export const helpshiftLimitsColumns: GridColDef[] = [
     {field: 'pollingInterval', headerName: 'Polling interval', width: 150, editable: true},
     {field: 'smsLimit', headerName: 'SMS limit', width: 150, type: 'number', editable: true},
     {field: 'callLimit', headerName: 'Call limit', width: 150, type: 'number', editable: true},
+    {field: 'slackChannelName', headerName: 'Slack channel', width: 150, editable: true},
+    {field: 'slackLimit', headerName: 'Slack limit', width: 150, type: 'number', editable: true},
 ]
 
 export const helpshiftLimitsSlackChannelColumns: GridColDef[] = [
