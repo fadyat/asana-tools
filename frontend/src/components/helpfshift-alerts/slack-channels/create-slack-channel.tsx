@@ -9,17 +9,50 @@ import {ApiAlertProps} from "../../core/api-alert";
 import {CreatedSlackChannelDto, CreateSlackChannelDto} from "../../../api/helpshift/slack";
 import {validationStatus} from "../../../templates/validate";
 import {ApiResponse} from "../../../api/client";
+import {SlackChannelsPages} from "./page";
+import {hsClient} from "../../../api/helpshift/client";
 
 
 export type CreateSlackChannelFormProps = {
+    name?: string,
     setApiAlertProps: (v: ApiAlertProps | null) => void;
     setIsOpen: (v: boolean) => void;
     saveFn?: (channel: CreateSlackChannelDto) => Promise<ApiResponse<CreatedSlackChannelDto>>
 }
 
 
-export const CreateSlackChannelForm = (
-    {setApiAlertProps, setIsOpen, saveFn}: CreateSlackChannelFormProps
+export const CreateSlackChannelFormByPage = (
+    {page, selectedProject, setApiAlertProps, setIsOpen}: {
+        page: SlackChannelsPages,
+        selectedProject: number,
+    } & CreateSlackChannelFormProps
+) => {
+    switch (page) {
+        case SlackChannelsPages.LIMITS_SLACK_CHANNELS:
+            return (
+                <CreateSlackChannelForm
+                    setApiAlertProps={setApiAlertProps}
+                    setIsOpen={setIsOpen}
+                    saveFn={(c) => hsClient.slackChannels.newForLimits(c)}
+                    name={'New Limits Slack Channel'}
+                />
+            )
+        case SlackChannelsPages.PROJECT_SLACK_CHANNELS:
+            return (
+                <CreateSlackChannelForm
+                    setApiAlertProps={setApiAlertProps}
+                    setIsOpen={setIsOpen}
+                    saveFn={(c) => hsClient.slackChannels.newForProject(selectedProject, c)}
+                    name={'New Project Slack Channel'}
+                />
+            )
+    }
+
+    return null;
+}
+
+const CreateSlackChannelForm = (
+    {name, setApiAlertProps, setIsOpen, saveFn}: CreateSlackChannelFormProps
 ) => {
     const [channel, setChannel] = useState<CreateSlackChannelDto>({
         name: '', type: 0, url: ''
@@ -46,7 +79,7 @@ export const CreateSlackChannelForm = (
                     }}
                     variant={'h5'}
                 >
-                    New Slack Channel
+                    {name}
                 </Typography>
 
                 {
