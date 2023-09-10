@@ -5,16 +5,21 @@ import {Add, Close} from "@mui/icons-material";
 import {CreateProjectLimitForm} from "./limits/create-project-limit";
 import {ApiAlertProps} from "../core/api-alert";
 import {CreateSlackChannelForm} from "./slack-channels/create-slack-channel";
+import {hsClient} from "../../api/helpshift/client";
+import {SlackChannelsPages} from "./slack-channels/page";
 
 
 export type HelpshiftPageCreatorProps = {
     selectedPage: HelpshiftAlertsPages;
     selectedProject: number;
     setApiAlertProps: (v: ApiAlertProps | null) => void,
+    selectedSlackPage?: SlackChannelsPages,
 }
 
 
-const HelpshiftPageCreator = ({selectedPage, selectedProject, setApiAlertProps}: HelpshiftPageCreatorProps) => {
+const HelpshiftPageCreator = (
+    {selectedPage, selectedProject, setApiAlertProps}: HelpshiftPageCreatorProps
+) => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -51,9 +56,9 @@ const HelpshiftPageCreator = ({selectedPage, selectedProject, setApiAlertProps}:
                 {
                     selectedPage && selectedPage === HelpshiftAlertsPages.SLACK_CHANNELS && (
                         <CreateSlackChannelForm
-                            selectedProject={selectedProject}
                             setApiAlertProps={setApiAlertProps}
                             setIsOpen={setIsOpen}
+                            saveFn={(c) => hsClient.slackChannels.newForProject(selectedProject, c)}
                         />
                     )
                 }

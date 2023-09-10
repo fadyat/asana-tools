@@ -6,18 +6,21 @@ import {
     notifyAboutErrors
 } from "../../../templates/helpshift-alerts/columns";
 import {ApiAlertProps} from "../../core/api-alert";
-import {CreateSlackChannelDto} from "../../../api/helpshift/slack";
-import {hsClient} from "../../../api/helpshift/client";
+import {CreatedSlackChannelDto, CreateSlackChannelDto} from "../../../api/helpshift/slack";
 import {validationStatus} from "../../../templates/validate";
+import {ApiResponse} from "../../../api/client";
 
 
 export type CreateSlackChannelFormProps = {
-    selectedProject: number;
     setApiAlertProps: (v: ApiAlertProps | null) => void;
     setIsOpen: (v: boolean) => void;
+    saveFn?: (channel: CreateSlackChannelDto) => Promise<ApiResponse<CreatedSlackChannelDto>>
 }
 
-export const CreateSlackChannelForm = ({selectedProject, setApiAlertProps, setIsOpen}: CreateSlackChannelFormProps) => {
+
+export const CreateSlackChannelForm = (
+    {setApiAlertProps, setIsOpen, saveFn}: CreateSlackChannelFormProps
+) => {
     const [channel, setChannel] = useState<CreateSlackChannelDto>({
         name: '', type: 0, url: ''
     })
@@ -85,7 +88,7 @@ export const CreateSlackChannelForm = ({selectedProject, setApiAlertProps, setIs
                             return;
                         }
 
-                        hsClient.slackChannels.newForProject(selectedProject, channel).then((v) => {
+                        saveFn!(channel).then((v) => {
                             if (v.ok) {
                                 setApiAlertProps({
                                     severity: 'success',

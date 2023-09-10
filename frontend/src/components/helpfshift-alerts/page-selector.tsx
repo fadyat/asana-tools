@@ -6,10 +6,11 @@ import {HelpshiftAlertsPages} from "./helpshift-alerts";
 export type HelpshiftPageSelectorProps = {
     selectedPage: HelpshiftAlertsPages;
     setSelectedPage: (v: HelpshiftAlertsPages) => void;
+    extraSet(v: HelpshiftAlertsPages): void;
 }
 
 
-const HelpshiftPageSelector = ({selectedPage, setSelectedPage}: HelpshiftPageSelectorProps) => {
+const HelpshiftPageSelector = ({selectedPage, setSelectedPage, extraSet}: HelpshiftPageSelectorProps) => {
     return (
         <FormControl sx={{minWidth: '250px'}}>
             <InputLabel id="helpshift-page-label">Select a page</InputLabel>
@@ -20,6 +21,7 @@ const HelpshiftPageSelector = ({selectedPage, setSelectedPage}: HelpshiftPageSel
                 label="Select a page"
                 onChange={(e) => {
                     setSelectedPage(`${e.target.value}` as HelpshiftAlertsPages)
+                    extraSet(`${e.target.value}` as HelpshiftAlertsPages)
                 }}
             >
                 {

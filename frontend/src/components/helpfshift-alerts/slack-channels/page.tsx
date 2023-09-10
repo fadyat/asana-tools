@@ -1,5 +1,4 @@
-import React, {useState} from "react";
-import {FormControlLabel, FormGroup, Switch} from "@mui/material";
+import React from "react";
 import {EditableSlackChannelsTable} from "./editable-slack-channels-table";
 import {hsClient} from "../../../api/helpshift/client";
 import {Theme} from "@mui/material/styles";
@@ -9,15 +8,21 @@ import {SxProps} from "@mui/system";
 export enum SlackChannelsPages {
     LIMITS_SLACK_CHANNELS = 'limits_slack_channels',
     PROJECT_SLACK_CHANNELS = 'project_slack_channels',
+
+    // ANOTHER_PAGE is used for useState component in global page switcher
+    ANOTHER_PAGE = 'another_page',
 }
 
 export type ProjectSlackChannelsEditorProps = {
     setApiAlertProps: (v: ApiAlertProps | null) => void,
     selectedProject: number,
+    selectedSlackPage?: SlackChannelsPages,
     sx?: SxProps<Theme>,
 }
 
-function switchOnPage(cur: SlackChannelsPages): SlackChannelsPages {
+
+// switchOnSlackPage used to get next value for switcher component
+export function switchOnSlackPage(cur: SlackChannelsPages): SlackChannelsPages {
     if (cur === SlackChannelsPages.LIMITS_SLACK_CHANNELS) {
         return SlackChannelsPages.PROJECT_SLACK_CHANNELS;
     }
@@ -26,10 +31,9 @@ function switchOnPage(cur: SlackChannelsPages): SlackChannelsPages {
 }
 
 function renderComponent(
-    page: SlackChannelsPages,
     props: ProjectSlackChannelsEditorProps
 ) {
-    if (page === SlackChannelsPages.PROJECT_SLACK_CHANNELS) {
+    if (props.selectedSlackPage === SlackChannelsPages.PROJECT_SLACK_CHANNELS) {
         return (
             <EditableSlackChannelsTable
                 fetchFn={() => hsClient.slackChannels.getAllByProjectID(props.selectedProject)}
@@ -57,26 +61,5 @@ function renderComponent(
 // - all Slack channels
 // - all Slack channels related to current project
 export function SlackChannelsPage(byProjectProps: ProjectSlackChannelsEditorProps) {
-
-    // by default showing all channels related to current project
-    // made because it used more often, than all channels
-    const [page, setPage] = useState<SlackChannelsPages>(SlackChannelsPages.PROJECT_SLACK_CHANNELS);
-
-    return (
-        <>
-            <FormGroup>
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={page === SlackChannelsPages.PROJECT_SLACK_CHANNELS}
-                            onChange={() => setPage(switchOnPage(page))}
-                        />
-                    }
-                    label={page}
-                />
-            </FormGroup>
-
-            {renderComponent(page, byProjectProps)}
-        </>
-    )
+    return renderComponent(byProjectProps)
 }
