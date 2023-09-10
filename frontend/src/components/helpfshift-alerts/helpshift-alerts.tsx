@@ -4,9 +4,9 @@ import HelpshiftProjectSelector from "./project-selector";
 import ProjectLimitsEditor from "./limits/project-alerts-editor";
 import HelpshiftPageSelector from "./page-selector";
 import {Box} from "@mui/material";
-import ProjectSlackChannelsEditor from "./slack-channels/project-slack-channels-editor";
 import HelpshiftPageCreator from "./page-creator";
 import ApiAlert, {ApiAlertProps} from "../core/api-alert";
+import {SlackChannelsPage} from "./slack-channels/page";
 
 export enum HelpshiftAlertsPages {
     LIMITS = 'limits',
@@ -58,7 +58,7 @@ const HelpshiftAlerts: FC = memo(() => {
 
             {
                 selectedPage && selectedPage === HelpshiftAlertsPages.SLACK_CHANNELS && (
-                    <ProjectSlackChannelsEditor
+                    <SlackChannelsPage
                         selectedProject={projectId}
                         sx={{height: '68vh', marginTop: '15px'}}
                         setApiAlertProps={setApiAlertProps}

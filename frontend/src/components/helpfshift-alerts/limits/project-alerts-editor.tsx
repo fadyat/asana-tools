@@ -37,10 +37,8 @@ export const toUpdateProjectLimit = (row: GridRowModel): UpdateLimitDto => {
         isEnabled: row.isEnabled,
         smsLimit: row.smsLimit,
         callLimit: row.callLimit,
-
-        // todo: fix this
-        slackLimit: 0,
-        slackChannelName: '',
+        slackLimit: row.slackLimit,
+        slackChannelName: row.slackChannelName,
     }
 }
 
@@ -62,10 +60,8 @@ export const toProjectLimit = (row: GridRowModel): Limit => {
         smsLimit: row.smsLimit,
         callLimit: row.callLimit,
         subscribers: row.subscribers,
-
-        // todo: fix this
-        slackLimit: 0,
-        slackChannelName: '',
+        slackLimit: row.slackLimit,
+        slackChannelName: row.slackChannelName,
     }
 }
 
