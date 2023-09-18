@@ -36,6 +36,17 @@ export class SlackChannelApiClient extends ApiClient {
         })
     }
 
+    /*
+     * Endpoint, which returns all Slack channels, that are not related to any project,
+     * but are related to limits.
+     */
+    async getLimitsRelated(): Promise<ApiResponse<SlackChannel[]>> {
+        return await this._get<SlackChannel[]>({
+            endpoint: '/api/SlackChannels/other',
+            headers: {'Apikey': helpshiftApiKey},
+        })
+    }
+
     async getAll(): Promise<ApiResponse<SlackChannel[]>> {
         return await this._get<SlackChannel[]>({
             endpoint: '/api/SlackChannels',

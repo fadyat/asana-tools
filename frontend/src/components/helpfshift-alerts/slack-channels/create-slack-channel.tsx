@@ -125,7 +125,7 @@ const CreateSlackChannelForm = (
                             if (v.ok) {
                                 setApiAlertProps({
                                     severity: 'success',
-                                    message: 'Ok, refresh the page, please',
+                                    message: 'Ok'
                                 })
 
                                 // todo: update slack channel without page refresh

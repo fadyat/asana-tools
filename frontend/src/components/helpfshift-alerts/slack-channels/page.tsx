@@ -47,7 +47,7 @@ function renderComponent(
 
     return (
         <EditableSlackChannelsTable
-            fetchFn={() => hsClient.slackChannels.getAll()}
+            fetchFn={() => hsClient.slackChannels.getLimitsRelated()}
             sx={props.sx}
             saveFn={(row) => hsClient.slackChannels.updateForLimits(row)}
             deleteFn={(row) => hsClient.slackChannels.deleteForLimits(row.id)}
