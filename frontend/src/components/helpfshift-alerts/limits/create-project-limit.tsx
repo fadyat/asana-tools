@@ -17,6 +17,8 @@ export const CreateProjectLimitForm = ({selectedProject, setApiAlertProps, setIs
     const [limit, setLimit] = useState<CreateLimitDto>({
         name: '', daysOfWeek: [], timeOfDay: '', duration: '', pollingInterval: '',
         smsLimit: 1, callLimit: 1, isEnabled: true,
+        // todo: fix this
+        slackLimit: 0, slackChannelName: '',
     })
     const [validation, setValidation] = useState<validationStatus>({
         name: '', daysOfWeek: '', timeOfDay: '', duration: '', pollingInterval: '',

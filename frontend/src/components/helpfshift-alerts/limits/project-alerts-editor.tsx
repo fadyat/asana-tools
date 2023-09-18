@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Limit, UpdateLimitDto} from "../../../api/helpshift/limit";
 import {DataGrid, GridCellParams} from '@mui/x-data-grid';
 import {Box, Dialog} from "@mui/material";
@@ -37,6 +37,8 @@ export const toUpdateProjectLimit = (row: GridRowModel): UpdateLimitDto => {
         isEnabled: row.isEnabled,
         smsLimit: row.smsLimit,
         callLimit: row.callLimit,
+        slackLimit: row.slackLimit,
+        slackChannelName: row.slackChannelName,
     }
 }
 
@@ -57,7 +59,9 @@ export const toProjectLimit = (row: GridRowModel): Limit => {
         isEnabled: row.isEnabled,
         smsLimit: row.smsLimit,
         callLimit: row.callLimit,
-        subscribers: row.subscribers
+        subscribers: row.subscribers,
+        slackLimit: row.slackLimit,
+        slackChannelName: row.slackChannelName,
     }
 }
 

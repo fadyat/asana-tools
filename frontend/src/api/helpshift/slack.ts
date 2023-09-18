@@ -17,14 +17,14 @@ export type SlackChannel = UpdateSlackChannelDto
 
 export class SlackChannelApiClient extends ApiClient {
 
-    async getAll(projectId: number | string): Promise<ApiResponse<SlackChannel[]>> {
+    async getAllByProjectID(projectId: number | string): Promise<ApiResponse<SlackChannel[]>> {
         return await this._get<SlackChannel[]>({
             endpoint: `/api/SlackChannels/${projectId}`,
             headers: {'Apikey': helpshiftApiKey},
         })
     }
 
-    async new(
+    async newForProject(
         projectId: number | string,
         channel: CreateSlackChannelDto
     ): Promise<ApiResponse<CreatedSlackChannelDto>> {
@@ -36,7 +36,36 @@ export class SlackChannelApiClient extends ApiClient {
         })
     }
 
-    async update(
+    /*
+     * Endpoint, which returns all Slack channels, that are not related to any project,
+     * but are related to limits.
+     */
+    async getLimitsRelated(): Promise<ApiResponse<SlackChannel[]>> {
+        return await this._get<SlackChannel[]>({
+            endpoint: '/api/SlackChannels/other',
+            headers: {'Apikey': helpshiftApiKey},
+        })
+    }
+
+    async getAll(): Promise<ApiResponse<SlackChannel[]>> {
+        return await this._get<SlackChannel[]>({
+            endpoint: '/api/SlackChannels',
+            headers: {'Apikey': helpshiftApiKey},
+        })
+    }
+
+    async newForLimits(
+        channel: CreateSlackChannelDto
+    ): Promise<ApiResponse<CreatedSlackChannelDto>> {
+        return await this._post<CreatedSlackChannelDto>({
+            endpoint: `/api/SlackChannels`,
+            headers: {'Apikey': helpshiftApiKey},
+            body: channel,
+            excludeJson: true,
+        })
+    }
+
+    async updateForProject(
         projectId: number | string,
         channel: UpdateSlackChannelDto
     ): Promise<ApiResponse<UpdatedSlackChannelDto>> {
@@ -48,12 +77,33 @@ export class SlackChannelApiClient extends ApiClient {
         })
     }
 
-    async delete(
+    async deleteForProject(
         projectId: number | string,
         channelId: number | string,
     ): Promise<ApiResponse<DeletedSlackChannelDto>> {
         return await this._delete<DeletedSlackChannelDto>({
             endpoint: `/api/SlackChannels/${projectId}/${channelId}`,
+            headers: {'Apikey': helpshiftApiKey},
+            excludeJson: true,
+        })
+    }
+
+    async updateForLimits(
+        channel: UpdateSlackChannelDto
+    ): Promise<ApiResponse<UpdatedSlackChannelDto>> {
+        return await this._put<UpdatedSlackChannelDto>({
+            endpoint: `/api/SlackChannels/${channel.id}`,
+            headers: {'Apikey': helpshiftApiKey},
+            body: channel,
+            excludeJson: true,
+        })
+    }
+
+    async deleteForLimits(
+        channelId: number | string,
+    ): Promise<ApiResponse<DeletedSlackChannelDto>> {
+        return await this._delete<DeletedSlackChannelDto>({
+            endpoint: `/api/SlackChannels/${channelId}`,
             headers: {'Apikey': helpshiftApiKey},
             excludeJson: true,
         })

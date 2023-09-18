@@ -3,10 +3,10 @@ import React, {FC, memo, useState} from "react";
 import HelpshiftProjectSelector from "./project-selector";
 import ProjectLimitsEditor from "./limits/project-alerts-editor";
 import HelpshiftPageSelector from "./page-selector";
-import {Box} from "@mui/material";
-import ProjectSlackChannelsEditor from "./slack-channels/project-slack-channels-editor";
+import {Box, FormControlLabel, FormGroup, Switch} from "@mui/material";
 import HelpshiftPageCreator from "./page-creator";
 import ApiAlert, {ApiAlertProps} from "../core/api-alert";
+import {SlackChannelsPage, SlackChannelsPages, switchOnSlackPage} from "./slack-channels/page";
 
 export enum HelpshiftAlertsPages {
     LIMITS = 'limits',
@@ -16,6 +16,7 @@ export enum HelpshiftAlertsPages {
 
 const HelpshiftAlerts: FC = memo(() => {
     const [selectedPage, setSelectedPage] = useState<HelpshiftAlertsPages>(HelpshiftAlertsPages.LIMITS);
+    const [selectedSlackPage, setSelectedSlackPage] = useState<SlackChannelsPages>(SlackChannelsPages.ANOTHER_PAGE);
     const [projectId, setProjectId] = useState<number>(0);
     const [apiAlertProps, setApiAlertProps] = useState<ApiAlertProps | null>(null);
 
@@ -25,6 +26,7 @@ const HelpshiftAlerts: FC = memo(() => {
                 display: 'flex',
                 flexDirection: 'row',
                 justifyContent: 'space-between',
+                alignItems: 'center',
             }}>
                 <HelpshiftProjectSelector
                     projectId={projectId}
@@ -35,11 +37,37 @@ const HelpshiftAlerts: FC = memo(() => {
                     selectedPage={selectedPage}
                     selectedProject={projectId}
                     setApiAlertProps={setApiAlertProps}
+                    selectedSlackPage={selectedSlackPage}
                 />
+
+                {
+                    selectedSlackPage !== SlackChannelsPages.ANOTHER_PAGE && (
+                        <FormGroup>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={selectedSlackPage === SlackChannelsPages.PROJECT_SLACK_CHANNELS}
+                                        onChange={() => setSelectedSlackPage(switchOnSlackPage(selectedSlackPage))}
+                                    />
+                                }
+                                label={selectedSlackPage}
+                            />
+                        </FormGroup>
+                    )
+                }
 
                 <HelpshiftPageSelector
                     selectedPage={selectedPage}
                     setSelectedPage={setSelectedPage}
+                    extraSet={(newPage: HelpshiftAlertsPages) => {
+                        if (newPage === HelpshiftAlertsPages.SLACK_CHANNELS) {
+                            setSelectedSlackPage(SlackChannelsPages.LIMITS_SLACK_CHANNELS);
+                        }
+
+                        if (newPage !== HelpshiftAlertsPages.SLACK_CHANNELS) {
+                            setSelectedSlackPage(SlackChannelsPages.ANOTHER_PAGE);
+                        }
+                    }}
                 />
             </Box>
 
@@ -58,8 +86,9 @@ const HelpshiftAlerts: FC = memo(() => {
 
             {
                 selectedPage && selectedPage === HelpshiftAlertsPages.SLACK_CHANNELS && (
-                    <ProjectSlackChannelsEditor
+                    <SlackChannelsPage
                         selectedProject={projectId}
+                        selectedSlackPage={selectedSlackPage}
                         sx={{height: '68vh', marginTop: '15px'}}
                         setApiAlertProps={setApiAlertProps}
                     />

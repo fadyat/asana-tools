@@ -1,20 +1,26 @@
-import {Theme} from "@mui/material/styles";
-import {SxProps} from "@mui/system";
 import React, {useEffect, useState} from "react";
-import {SlackChannel, UpdateSlackChannelDto} from "../../../api/helpshift/slack";
+import {
+    DeletedSlackChannelDto,
+    SlackChannel,
+    UpdatedSlackChannelDto,
+    UpdateSlackChannelDto
+} from "../../../api/helpshift/slack";
+import {ApiResponse} from "../../../api/client";
+import {helpshiftLimitsSlackChannelColumns} from "../../../templates/helpshift-alerts/columns";
 import {DataGrid, GridCellParams} from "@mui/x-data-grid";
 import {Box} from "@mui/material";
+import {SxProps} from "@mui/system";
+import {Theme} from "@mui/material/styles";
 import {SaveAction} from "../../core/actions/save";
-import {DeleteAction} from "../../core/actions/delete";
-import {helpshiftLimitsSlackChannelColumns} from "../../../templates/helpshift-alerts/columns";
-import {ApiAlertProps} from "../../core/api-alert";
 import {GridRowModel} from "@mui/x-data-grid/models/gridRows";
-import {hsClient} from "../../../api/helpshift/client";
+import {DeleteAction} from "../../core/actions/delete";
 
-export type ProjectSlackChannelsEditorProps = {
-    setApiAlertProps: (v: ApiAlertProps | null) => void,
-    selectedProject: number,
+type editableSlackChannelsProps = {
+    fetchFn: () => Promise<ApiResponse<SlackChannel[]>>
     sx?: SxProps<Theme>,
+    saveFn?: (row: SlackChannel) => Promise<ApiResponse<UpdatedSlackChannelDto>>
+    deleteFn?: (row: SlackChannel) => Promise<ApiResponse<DeletedSlackChannelDto>>
+    setApiAlertProps?: (v: any) => void
 }
 
 // todo: make it pretty
@@ -39,21 +45,23 @@ const toSlackChannel = (row: GridRowModel): SlackChannel => {
     }
 }
 
-const ProjectSlackChannelsEditor = ({selectedProject, sx, setApiAlertProps}: ProjectSlackChannelsEditorProps) => {
-    const [projectSlackChannels, setProjectSlackChannels] = useState<SlackChannel[]>([]);
+export const EditableSlackChannelsTable = function (
+    {fetchFn, sx, saveFn, deleteFn, setApiAlertProps}: editableSlackChannelsProps
+) {
+    const [channels, setChannels] = useState<SlackChannel[]>([]);
     const [saveRowId, setSaveRowId] = useState<number | null>(null);
     const [deleteRowId, setDeleteRowId] = useState<number | null>(null);
 
     useEffect(() => {
-        hsClient.slackChannels.getAll(selectedProject).then((r) => {
+        fetchFn().then((r) => {
             if (!r.ok) {
                 console.error(`Failed to get slack channels ${r.error}`);
                 return
             }
 
-            setProjectSlackChannels(r.data!);
+            setChannels(r.data!);
         })
-    }, [selectedProject]);
+    }, [fetchFn]);
 
     const columns = [
         ...helpshiftLimitsSlackChannelColumns,
@@ -70,64 +78,62 @@ const ProjectSlackChannelsEditor = ({selectedProject, sx, setApiAlertProps}: Pro
                                 onClickFunc={() => {
                                     const dto = toUpdatedSlackChannel(params.row);
 
-                                    hsClient.slackChannels.update(selectedProject, dto).then((v) => {
+                                    saveFn!(dto).then((v) => {
                                         if (v.ok) {
-                                            setApiAlertProps({
+                                            setApiAlertProps!({
                                                 severity: 'success',
                                                 message: 'Ok'
                                             });
 
-                                            setProjectSlackChannels(projectSlackChannels.map(
+                                            setChannels(channels.map(
                                                 (channel) => channel.id === params.id ? toSlackChannel(params.row) : channel
                                             ))
                                             return;
                                         }
 
-                                        setApiAlertProps({
+                                        setApiAlertProps!({
                                             severity: 'error',
                                             message: `Failed: ${dto.name}\n${v.error}`,
                                         });
                                     })
 
-                                    setTimeout(() => setApiAlertProps(null), 5000);
+                                    setTimeout(() => setApiAlertProps!(null), 5000);
                                 }}
                     />
                     <DeleteAction params={params}
                                   rowId={deleteRowId}
                                   setRowId={setDeleteRowId}
                                   onClickFunc={() => {
-                                      const [projectId, channelId] = [selectedProject, params.row.id];
-
-                                      hsClient.slackChannels.delete(projectId, channelId).then((v) => {
+                                      deleteFn!(params.row).then((v) => {
                                           if (v.ok) {
-                                              setApiAlertProps({
+                                              setApiAlertProps!({
                                                   severity: 'success',
                                                   message: 'Ok'
                                               });
-                                              setProjectSlackChannels(projectSlackChannels.filter(
+                                              setChannels(channels.filter(
                                                   (channel) => channel.id !== params.id
                                               ))
                                               return;
                                           }
 
-                                          setApiAlertProps({
+                                          setApiAlertProps!({
                                               severity: 'error',
                                               message: `Failed!\n${v.error}`,
                                           });
                                       })
 
-                                      setTimeout(() => setApiAlertProps(null), 5000);
+                                      setTimeout(() => setApiAlertProps!(null), 5000);
                                   }}
                     />
                 </>
-            },
+            }
         }
     ]
 
     return (
         <Box sx={{width: '100%', ...sx}}>
             <DataGrid
-                rows={projectSlackChannels}
+                rows={channels}
                 columns={columns}
                 getRowId={(channel) => channel.id}
                 onCellEditStop={(params) => {
@@ -140,5 +146,3 @@ const ProjectSlackChannelsEditor = ({selectedProject, sx, setApiAlertProps}: Pro
         </Box>
     )
 }
-
-export default ProjectSlackChannelsEditor;

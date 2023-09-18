@@ -1,23 +1,59 @@
 import {Button, FormControl, TextField, Typography} from "@mui/material";
 import React, {useState} from "react";
 import {
-    areErrorsPresent,
     getErrors,
-    helpshiftCreateSlackChannelColumns, notifyAboutErrors
+    helpshiftCreateSlackChannelColumns,
+    notifyAboutErrors
 } from "../../../templates/helpshift-alerts/columns";
 import {ApiAlertProps} from "../../core/api-alert";
-import {CreateSlackChannelDto} from "../../../api/helpshift/slack";
-import {hsClient} from "../../../api/helpshift/client";
+import {CreatedSlackChannelDto, CreateSlackChannelDto} from "../../../api/helpshift/slack";
 import {validationStatus} from "../../../templates/validate";
+import {ApiResponse} from "../../../api/client";
+import {SlackChannelsPages} from "./page";
+import {hsClient} from "../../../api/helpshift/client";
 
 
 export type CreateSlackChannelFormProps = {
-    selectedProject: number;
+    name?: string,
     setApiAlertProps: (v: ApiAlertProps | null) => void;
     setIsOpen: (v: boolean) => void;
+    saveFn?: (channel: CreateSlackChannelDto) => Promise<ApiResponse<CreatedSlackChannelDto>>
 }
 
-export const CreateSlackChannelForm = ({selectedProject, setApiAlertProps, setIsOpen}: CreateSlackChannelFormProps) => {
+
+export const CreateSlackChannelFormByPage = (
+    {page, selectedProject, setApiAlertProps, setIsOpen}: {
+        page: SlackChannelsPages,
+        selectedProject: number,
+    } & CreateSlackChannelFormProps
+) => {
+    switch (page) {
+        case SlackChannelsPages.LIMITS_SLACK_CHANNELS:
+            return (
+                <CreateSlackChannelForm
+                    setApiAlertProps={setApiAlertProps}
+                    setIsOpen={setIsOpen}
+                    saveFn={(c) => hsClient.slackChannels.newForLimits(c)}
+                    name={'New Limits Slack Channel'}
+                />
+            )
+        case SlackChannelsPages.PROJECT_SLACK_CHANNELS:
+            return (
+                <CreateSlackChannelForm
+                    setApiAlertProps={setApiAlertProps}
+                    setIsOpen={setIsOpen}
+                    saveFn={(c) => hsClient.slackChannels.newForProject(selectedProject, c)}
+                    name={'New Project Slack Channel'}
+                />
+            )
+    }
+
+    return null;
+}
+
+const CreateSlackChannelForm = (
+    {name, setApiAlertProps, setIsOpen, saveFn}: CreateSlackChannelFormProps
+) => {
     const [channel, setChannel] = useState<CreateSlackChannelDto>({
         name: '', type: 0, url: ''
     })
@@ -43,7 +79,7 @@ export const CreateSlackChannelForm = ({selectedProject, setApiAlertProps, setIs
                     }}
                     variant={'h5'}
                 >
-                    New Slack Channel
+                    {name}
                 </Typography>
 
                 {
@@ -85,11 +121,11 @@ export const CreateSlackChannelForm = ({selectedProject, setApiAlertProps, setIs
                             return;
                         }
 
-                        hsClient.slackChannels.new(selectedProject, channel).then((v) => {
+                        saveFn!(channel).then((v) => {
                             if (v.ok) {
                                 setApiAlertProps({
                                     severity: 'success',
-                                    message: 'Ok, refresh the page, please',
+                                    message: 'Ok'
                                 })
 
                                 // todo: update slack channel without page refresh
