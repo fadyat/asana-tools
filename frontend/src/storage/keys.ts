@@ -1,0 +1,1 @@
+export const HELPSHIFT_PROJECT_ID_KEY = "helpshiftProjectId"

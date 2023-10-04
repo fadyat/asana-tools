@@ -7,6 +7,8 @@ import {Box, FormControlLabel, FormGroup, Switch} from "@mui/material";
 import HelpshiftPageCreator from "./page-creator";
 import ApiAlert, {ApiAlertProps} from "../core/api-alert";
 import {SlackChannelsPage, SlackChannelsPages, switchOnSlackPage} from "./slack-channels/page";
+import {HELPSHIFT_PROJECT_ID_KEY} from "../../storage/keys";
+import {getWithTTL} from "../../storage/ttl-based";
 
 export enum HelpshiftAlertsPages {
     LIMITS = 'limits',
@@ -17,7 +19,9 @@ export enum HelpshiftAlertsPages {
 const HelpshiftAlerts: FC = memo(() => {
     const [selectedPage, setSelectedPage] = useState<HelpshiftAlertsPages>(HelpshiftAlertsPages.LIMITS);
     const [selectedSlackPage, setSelectedSlackPage] = useState<SlackChannelsPages>(SlackChannelsPages.ANOTHER_PAGE);
-    const [projectId, setProjectId] = useState<number>(0);
+    const [projectId, setProjectId] = useState<number>(
+        getWithTTL<number>(HELPSHIFT_PROJECT_ID_KEY) || 0
+    );
     const [apiAlertProps, setApiAlertProps] = useState<ApiAlertProps | null>(null);
 
     return (
