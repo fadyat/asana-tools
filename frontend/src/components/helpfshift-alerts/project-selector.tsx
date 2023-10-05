@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Project} from "../../api/helpshift/project";
 import {FormControl, InputLabel, MenuItem, Select} from "@mui/material";
 import {hsClient} from "../../api/helpshift/client";
-import {MINUTE, setWithTTL} from "../../storage/ttl-based";
+import {DAY, setWithTTL} from "../../storage/ttl-based";
 import {HELPSHIFT_PROJECT_ID_KEY} from "../../storage/keys";
 
 
@@ -34,7 +34,7 @@ const HelpshiftProjectSelector = ({projectId, setProjectId}: selectorProps) => {
                 value={projectId}
                 label="Select a project"
                 onChange={(e) => {
-                    setWithTTL(HELPSHIFT_PROJECT_ID_KEY, parseInt(e.target.value as string), 10 * MINUTE)
+                    setWithTTL(HELPSHIFT_PROJECT_ID_KEY, parseInt(e.target.value as string), DAY)
                     setProjectId(parseInt(e.target.value as string))
                 }}
             >

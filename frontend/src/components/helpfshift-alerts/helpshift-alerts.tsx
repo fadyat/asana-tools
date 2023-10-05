@@ -7,8 +7,12 @@ import {Box, FormControlLabel, FormGroup, Switch} from "@mui/material";
 import HelpshiftPageCreator from "./page-creator";
 import ApiAlert, {ApiAlertProps} from "../core/api-alert";
 import {SlackChannelsPage, SlackChannelsPages, switchOnSlackPage} from "./slack-channels/page";
-import {HELPSHIFT_PROJECT_ID_KEY} from "../../storage/keys";
-import {getWithTTL} from "../../storage/ttl-based";
+import {
+    HELPSHIFT_PROJECT_ID_KEY,
+    HELPSHIFT_SELECTED_PAGE_KEY,
+    HELPSHIFT_SELECTED_SLACK_PAGE_KEY
+} from "../../storage/keys";
+import {DAY, getWithTTL, setWithTTL} from "../../storage/ttl-based";
 
 export enum HelpshiftAlertsPages {
     LIMITS = 'limits',
@@ -17,8 +21,12 @@ export enum HelpshiftAlertsPages {
 
 
 const HelpshiftAlerts: FC = memo(() => {
-    const [selectedPage, setSelectedPage] = useState<HelpshiftAlertsPages>(HelpshiftAlertsPages.LIMITS);
-    const [selectedSlackPage, setSelectedSlackPage] = useState<SlackChannelsPages>(SlackChannelsPages.ANOTHER_PAGE);
+    const [selectedPage, setSelectedPage] = useState<HelpshiftAlertsPages>(
+        getWithTTL<HelpshiftAlertsPages>(HELPSHIFT_SELECTED_PAGE_KEY) || HelpshiftAlertsPages.LIMITS,
+    );
+    const [selectedSlackPage, setSelectedSlackPage] = useState<SlackChannelsPages>(
+        getWithTTL<SlackChannelsPages>(HELPSHIFT_SELECTED_SLACK_PAGE_KEY) || SlackChannelsPages.ANOTHER_PAGE,
+    );
     const [projectId, setProjectId] = useState<number>(
         getWithTTL<number>(HELPSHIFT_PROJECT_ID_KEY) || 0
     );
@@ -51,7 +59,11 @@ const HelpshiftAlerts: FC = memo(() => {
                                 control={
                                     <Switch
                                         checked={selectedSlackPage === SlackChannelsPages.PROJECT_SLACK_CHANNELS}
-                                        onChange={() => setSelectedSlackPage(switchOnSlackPage(selectedSlackPage))}
+                                        onChange={() => {
+                                            const page = switchOnSlackPage(selectedSlackPage);
+                                            setSelectedSlackPage(page);
+                                            setWithTTL(HELPSHIFT_SELECTED_SLACK_PAGE_KEY, page, DAY)
+                                        }}
                                     />
                                 }
                                 label={selectedSlackPage}
@@ -64,13 +76,19 @@ const HelpshiftAlerts: FC = memo(() => {
                     selectedPage={selectedPage}
                     setSelectedPage={setSelectedPage}
                     extraSet={(newPage: HelpshiftAlertsPages) => {
+                        let newSlackPage;
                         if (newPage === HelpshiftAlertsPages.SLACK_CHANNELS) {
-                            setSelectedSlackPage(SlackChannelsPages.LIMITS_SLACK_CHANNELS);
+                            setSelectedSlackPage(SlackChannelsPages.PROJECT_SLACK_CHANNELS);
+                            newSlackPage = SlackChannelsPages.PROJECT_SLACK_CHANNELS;
                         }
 
                         if (newPage !== HelpshiftAlertsPages.SLACK_CHANNELS) {
                             setSelectedSlackPage(SlackChannelsPages.ANOTHER_PAGE);
+                            newSlackPage = SlackChannelsPages.ANOTHER_PAGE;
                         }
+
+                        setWithTTL(HELPSHIFT_SELECTED_PAGE_KEY, newPage, DAY)
+                        setWithTTL(HELPSHIFT_SELECTED_SLACK_PAGE_KEY, newSlackPage, DAY)
                     }}
                 />
             </Box>
@@ -107,7 +125,7 @@ const HelpshiftAlerts: FC = memo(() => {
             }
 
             <PageDescription
-                title="Helshift alerts configurator"
+                title="Helpshift alerts configurator"
                 points={[
                     "Project alerts configurator"
                 ]}
