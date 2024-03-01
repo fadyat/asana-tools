@@ -113,7 +113,9 @@ class HttpClient:
             'accept': 'application/json',
         }
 
-        if body:
+        # todo: sometimes request failed with data as dict
+        #  on callback
+        if endpoint != "" and body:
             body = json.dumps(body)
 
         response = await self.http_session.request(
