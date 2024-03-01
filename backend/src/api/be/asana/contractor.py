@@ -23,7 +23,6 @@ async def get_completed_contractor_tasks(
         asana_api_endpoint=request.app.asana_config.asana_api_endpoint,
         headers={
             'Authorization': request.cookies.get('access_token'),
-            'Content-Type': 'application/json',
         },
     ) as client:
         all_tasks = await client.tasks.get_tasks(
@@ -78,7 +77,6 @@ async def report_completed_contractor_tasks(
         asana_api_endpoint=asana_api_endpoint,
         headers={
             'Authorization': request.cookies.get('access_token'),
-            'Content-Type': 'application/json',
         },
     ) as client:
         agreement_project_members = await client.projects.get_members(

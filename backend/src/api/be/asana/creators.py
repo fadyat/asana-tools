@@ -42,7 +42,6 @@ async def get_activity(
         asana_api_endpoint=request.app.asana_config.asana_api_endpoint,
         headers={
             'Authorization': request.cookies.get('access_token'),
-            'Content-Type': 'application/json',
         },
     ) as client:
         all_tasks = await client.tasks.get_tasks(

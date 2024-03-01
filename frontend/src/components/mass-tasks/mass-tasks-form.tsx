@@ -25,7 +25,7 @@ const MassTasksForm = () => {
             <PrettyFormControl>
                 <TextField
                     id="asana-project"
-                    label="Asana project"
+                    label="Template asana task"
                     variant="outlined"
                     required={true}
                     placeholder={asanaUrlWithTaskId}

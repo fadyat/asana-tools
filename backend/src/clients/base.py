@@ -5,6 +5,7 @@ import typing
 import aiohttp
 
 from src.clients.asana.before_request import remove_none_values
+from src.utils.log import logger
 
 
 class HttpClient:
@@ -107,18 +108,29 @@ class HttpClient:
         params = remove_none_values(params)
         body = remove_none_values(body)
 
-        if self.headers.get('Content-Type') == 'application/json':
+        headers = {
+            **self.headers,
+            'accept': 'application/json',
+        }
+
+        if body:
             body = json.dumps(body)
 
         response = await self.http_session.request(
             method=method,
             url=f"{self.api_endpoint}/{endpoint}",
-            headers=self.headers,
+            headers=headers,
             params=params,
             data=body,
             ssl=False,
         )
 
-        # todo: specify response code for handling errors
-
-        return await response.json()
+        try:
+            return await response.json()
+        except aiohttp.ContentTypeError as e:
+            logger.error({
+                'error': 'Error parsing response',
+                'message': str(e),
+                'response': await response.text(),
+            })
+            raise e

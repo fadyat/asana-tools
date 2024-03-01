@@ -35,7 +35,6 @@ async def create_tasks_by_template(
         asana_api_endpoint=request.app.asana_config.asana_api_endpoint,
         headers={
             'Authorization': request.cookies.get('access_token'),
-            'Content-Type': 'application/json',
         },
     ) as client:
         members = await client.projects.get_members(
